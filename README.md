@@ -1,5 +1,5 @@
-# Termocel
-An app that uses **SMS** to communicate with sensors on farms or fields that need to be supervised for **temperature** changes.
+# Labinal
+An app that parses the **SMS** alarms that come from the Labinal plant in Chihuahua
 
 # Install
 Just open it on Android studio
