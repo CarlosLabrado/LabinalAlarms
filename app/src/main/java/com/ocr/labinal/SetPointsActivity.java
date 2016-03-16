@@ -1,0 +1,370 @@
+package com.ocr.labinal;
+
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.telephony.SmsManager;
+import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.SeekBar;
+import android.widget.Toast;
+
+import com.activeandroid.query.Select;
+import com.ocr.labinal.model.Microlog;
+import com.ocr.labinal.model.SetPoint;
+import com.ocr.labinal.receivers.MessageReceiver;
+import com.ocr.labinal.utilities.Tools;
+
+import java.util.Calendar;
+import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+public class SetPointsActivity extends AppCompatActivity {
+
+    private final String TAG = SetPointsActivity.class.getSimpleName();
+
+    private int mTemp1 = 36;
+    private int mTemp2 = 33;
+    private int mTemp3 = 28;
+
+    @Bind(com.ocr.labinal.R.id.toolbar)
+    Toolbar toolbar;
+
+    @Bind(com.ocr.labinal.R.id.editTextMicrologId)
+    EditText editTextMicrologId;
+
+    @Bind(com.ocr.labinal.R.id.seekBarSetPoint1)
+    SeekBar seekBarSetPoint1;
+    @Bind(com.ocr.labinal.R.id.seekBarSetPoint2)
+    SeekBar seekBarSetPoint2;
+    @Bind(com.ocr.labinal.R.id.seekBarSetPoint3)
+    SeekBar seekBarSetPoint3;
+
+    @Bind(com.ocr.labinal.R.id.editTextSetPoint1)
+    EditText editTextSetPoint1;
+    @Bind(com.ocr.labinal.R.id.editTextSetPoint2)
+    EditText editTextSetPoint2;
+    @Bind(com.ocr.labinal.R.id.editTextSetPoint3)
+    EditText editTextSetPoint3;
+
+    @OnClick(com.ocr.labinal.R.id.buttonSetPointAll)
+    public void setAllSetPointsClicked() {
+        new AlertDialog.Builder(this)
+                .setTitle(getString(com.ocr.labinal.R.string.dialog_title_get_all_set_points))
+                .setMessage(getString(com.ocr.labinal.R.string.dialog_message_confirm_sms))
+                .setCancelable(false)
+                .setPositiveButton(getString(com.ocr.labinal.R.string.dialog_yes), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        smsManager.sendTextMessage(sensorTelephoneNumber, null, mMicrolog.sensorId + "X01S?2", null, null);
+                        Toast.makeText(getApplicationContext(), getString(com.ocr.labinal.R.string.toast_message_send), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton(getString(com.ocr.labinal.R.string.dialog_no), null)
+                .show();
+
+    }
+
+    @OnClick(com.ocr.labinal.R.id.buttonSetPoint1)
+    public void setPointClicked1() {
+        if (mTemp1 == Double.parseDouble(editTextSetPoint1.getText().toString())) {
+            showAlertDialog(getString(com.ocr.labinal.R.string.dialog_title_set_point) + " 1", getString(com.ocr.labinal.R.string.dialog_message_temperature_is_the_same), 0);
+        } else {
+            showAlertDialog(getString(com.ocr.labinal.R.string.dialog_title_set_point) + " 1", getString(com.ocr.labinal.R.string.dialog_message_confirm_sms), 0);
+        }
+    }
+
+    @OnClick(com.ocr.labinal.R.id.buttonSetPoint2)
+    public void setPointClicked2() {
+        if (mTemp2 == Double.parseDouble(editTextSetPoint2.getText().toString())) {
+            showAlertDialog(getString(com.ocr.labinal.R.string.dialog_title_set_point) + " 2", getString(com.ocr.labinal.R.string.dialog_message_temperature_is_the_same), 1);
+        } else {
+            showAlertDialog(getString(com.ocr.labinal.R.string.dialog_title_set_point) + " 2", getString(com.ocr.labinal.R.string.dialog_message_confirm_sms), 1);
+        }
+    }
+
+    @OnClick(com.ocr.labinal.R.id.buttonSetPoint3)
+    public void setPointClicked3() {
+        if (mTemp3 == Double.parseDouble(editTextSetPoint3.getText().toString())) {
+            showAlertDialog(getString(com.ocr.labinal.R.string.dialog_title_set_point) + " 3", getString(com.ocr.labinal.R.string.dialog_message_temperature_is_the_same), 2);
+        } else {
+            showAlertDialog(getString(com.ocr.labinal.R.string.dialog_title_set_point) + " 3", getString(com.ocr.labinal.R.string.dialog_message_confirm_sms), 2);
+        }
+    }
+
+
+    SmsManager smsManager;
+
+    private String sensorTelephoneNumber;
+
+    private List<SetPoint> mSetPointList;
+
+    private Microlog mMicrolog;
+
+    @Override
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(com.ocr.labinal.R.layout.activity_set_points);
+        ButterKnife.bind(this);
+
+
+        Intent intent = getIntent();
+        sensorTelephoneNumber = intent.getStringExtra(Constants.EXTRA_TELEPHONE_NUMBER);
+        if (sensorTelephoneNumber == null || sensorTelephoneNumber.isEmpty()) {
+            sensorTelephoneNumber = intent.getStringExtra(MessageReceiver.EXTRA_PHONE_NUMBER);
+        }
+        smsManager = SmsManager.getDefault();
+
+        /** toolBar **/
+        setUpToolBar();
+
+
+        drawSetPoints();
+
+
+    }
+
+    /**
+     * Handles the setPoints drawing, is separated cause it will be called when refreshing
+     */
+    private void drawSetPoints() {
+        mMicrolog = getMicrolog();
+
+
+        if (!mMicrolog.sensorId.equalsIgnoreCase("")) {
+            editTextMicrologId.setText(mMicrolog.sensorId);
+        } else {
+            editTextMicrologId.setText("00");
+        }
+
+        mSetPointList = getSetPointsFromDB();
+
+        if (mSetPointList != null && !mSetPointList.isEmpty()) {
+
+            mTemp1 = (int) mSetPointList.get(0).tempInFahrenheit;
+            mTemp2 = (int) mSetPointList.get(1).tempInFahrenheit;
+            mTemp3 = (int) mSetPointList.get(2).tempInFahrenheit;
+
+            seekBarSetPoint1.setProgress(mTemp1);
+            seekBarSetPoint2.setProgress(mTemp2);
+            seekBarSetPoint3.setProgress(mTemp3);
+
+            seekBarSetPoint1.setThumb(writeOnDrawable(com.ocr.labinal.R.drawable.thumb, String.valueOf(mTemp1)));
+            seekBarSetPoint2.setThumb(writeOnDrawable(com.ocr.labinal.R.drawable.thumb, String.valueOf(mTemp2)));
+            seekBarSetPoint3.setThumb(writeOnDrawable(com.ocr.labinal.R.drawable.thumb, String.valueOf(mTemp3)));
+
+            editTextSetPoint1.setText(String.valueOf(mTemp1));
+            editTextSetPoint2.setText(String.valueOf(mTemp2));
+            editTextSetPoint3.setText(String.valueOf(mTemp3));
+        } else {
+            seekBarSetPoint1.setProgress(mTemp1);
+            seekBarSetPoint2.setProgress(mTemp2);
+            seekBarSetPoint3.setProgress(mTemp3);
+
+            seekBarSetPoint1.setThumb(writeOnDrawable(com.ocr.labinal.R.drawable.thumb, String.valueOf(mTemp1)));
+            seekBarSetPoint2.setThumb(writeOnDrawable(com.ocr.labinal.R.drawable.thumb, String.valueOf(mTemp2)));
+            seekBarSetPoint3.setThumb(writeOnDrawable(com.ocr.labinal.R.drawable.thumb, String.valueOf(mTemp3)));
+
+
+            editTextSetPoint1.setText(String.valueOf(mTemp1));
+            editTextSetPoint2.setText(String.valueOf(mTemp2));
+            editTextSetPoint3.setText(String.valueOf(mTemp3));
+        }
+
+        editTextSetPoint1.setSelectAllOnFocus(true);
+        editTextSetPoint2.setSelectAllOnFocus(true);
+        editTextSetPoint3.setSelectAllOnFocus(true);
+
+
+        seekBarSetPoint1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                editTextSetPoint1.setText(String.valueOf(i));
+                seekBarSetPoint1.setThumb(writeOnDrawable(com.ocr.labinal.R.drawable.thumb, String.valueOf(i)));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        seekBarSetPoint2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                editTextSetPoint2.setText(String.valueOf(i));
+                seekBarSetPoint2.setThumb(writeOnDrawable(com.ocr.labinal.R.drawable.thumb, String.valueOf(i)));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        seekBarSetPoint3.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                editTextSetPoint3.setText(String.valueOf(i));
+                seekBarSetPoint3.setThumb(writeOnDrawable(com.ocr.labinal.R.drawable.thumb, String.valueOf(i)));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            super.onBackPressed();
+        }
+        return true;
+    }
+
+    /**
+     * Writes text on the Thumb drawable
+     *
+     * @param drawableId the resource Id
+     * @param text       text to be drawn
+     * @return bitmap
+     */
+    public BitmapDrawable writeOnDrawable(int drawableId, String text) {
+
+        Bitmap bm = BitmapFactory.decodeResource(getResources(), drawableId).copy(Bitmap.Config.ARGB_8888, true);
+
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.BLACK);
+        paint.setTextSize(Tools.fromDpToPx(14));
+
+        Canvas canvas = new Canvas(bm);
+
+        canvas.drawText(text, bm.getWidth()/8, bm.getHeight()/1.33f, paint); //Change the position of the text here
+
+        return new BitmapDrawable(getResources(), bm);
+    }
+
+    private Microlog getMicrolog() {
+        return new Select().from(Microlog.class).where("sensorPhoneNumber = ?", sensorTelephoneNumber).executeSingle();
+    }
+
+    /**
+     * Show the alert dialog and then clicks on the index
+     *
+     * @param title         title to show
+     * @param messageToShow message
+     * @param indexClicked  for the setPointClick
+     */
+    private void showAlertDialog(String title, String messageToShow, final int indexClicked) {
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(messageToShow)
+                .setCancelable(false)
+                .setPositiveButton(getString(com.ocr.labinal.R.string.dialog_yes), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        setPointClick(indexClicked);
+                    }
+                })
+                .setNegativeButton(getString(com.ocr.labinal.R.string.dialog_no), null)
+                .show();
+    }
+
+    private void setPointClick(int i) {
+        SetPoint setPoint = new Select().
+                from(SetPoint.class).
+                where("phoneNumber = ?", sensorTelephoneNumber).
+                and("setPointNumber = ?", i).
+                executeSingle();
+        if (setPoint != null) {
+            switch (i) {
+                case 0:
+                    setPoint.tempInFahrenheit = Double.parseDouble(editTextSetPoint1.getText().toString());
+                    break;
+                case 1:
+                    setPoint.tempInFahrenheit = Double.parseDouble(editTextSetPoint2.getText().toString());
+                    break;
+                case 2:
+                    setPoint.tempInFahrenheit = Double.parseDouble(editTextSetPoint3.getText().toString());
+                    break;
+            }
+            Calendar calendar = Calendar.getInstance();
+            setPoint.timestamp = calendar.getTimeInMillis();
+            setPoint.verified = false;
+            setPoint.save();
+        }
+//        Log.d(TAG, "set point saved to db");
+
+        sendSMS(i);
+
+    }
+
+    private void sendSMS(int i) {
+        String micrologId = mMicrolog.sensorId;
+        String hex;
+        switch (i) {
+            case 0:
+                hex = Integer.toHexString(Integer.parseInt(editTextSetPoint1.getText().toString()));
+                smsManager.sendTextMessage(sensorTelephoneNumber, null, micrologId + "SX100" + hex, null, null);
+                Toast.makeText(this, getString(com.ocr.labinal.R.string.toast_message_send), Toast.LENGTH_SHORT).show();
+                break;
+            case 1:
+                hex = Integer.toHexString(Integer.parseInt(editTextSetPoint2.getText().toString()));
+                smsManager.sendTextMessage(sensorTelephoneNumber, null, micrologId + "SX200" + hex, null, null);
+                Toast.makeText(this, getString(com.ocr.labinal.R.string.toast_message_send), Toast.LENGTH_SHORT).show();
+                break;
+            case 2:
+                hex = Integer.toHexString(Integer.parseInt(editTextSetPoint3.getText().toString()));
+                smsManager.sendTextMessage(sensorTelephoneNumber, null, micrologId + "SX300" + hex, null, null);
+                Toast.makeText(this, getString(com.ocr.labinal.R.string.toast_message_send), Toast.LENGTH_SHORT).show();
+                break;
+        }
+    }
+
+    public List<SetPoint> getSetPointsFromDB() {
+        return new Select().from(SetPoint.class).where("phoneNumber = ?", sensorTelephoneNumber).orderBy("setPointNumber ASC").execute();
+    }
+
+
+    /**
+     * sets up the top bar
+     */
+    private void setUpToolBar() {
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(getString(com.ocr.labinal.R.string.set_points_title));
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        // enabling action bar app icon and behaving it as toggle button
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+    }
+
+
+}
