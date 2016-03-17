@@ -40,4 +40,52 @@ public class SetPoint extends Model {
     public SetPoint() {
         super();
     }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getMicrologId() {
+        return micrologId;
+    }
+
+    public void setMicrologId(String micrologId) {
+        this.micrologId = micrologId;
+    }
+
+    public int getSetPointNumber() {
+        return setPointNumber;
+    }
+
+    public void setSetPointNumber(int setPointNumber) {
+        this.setPointNumber = setPointNumber;
+    }
+
+    public double getTempInFahrenheit() {
+        return tempInFahrenheit;
+    }
+
+    public void setTempInFahrenheit(double tempInFahrenheit) {
+        this.tempInFahrenheit = tempInFahrenheit;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+    }
 }

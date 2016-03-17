@@ -496,15 +496,15 @@ public class MainActivity extends AppCompatActivity implements
                             if (no.length() > 10) {
                                 no = no.substring(no.length() - 10);
                             }
-                            Microlog microlog = new Microlog(
-                                    no,
-                                    null,
-                                    name,
-                                    null,
-                                    3
-                            );
-                            microlog.save();
-                            refreshMicrologsRecyclerView();
+//                            Microlog microlog = new Microlog(
+//                                    no,
+//                                    null,
+//                                    name,
+//                                    null,
+//                                    3
+//                            );
+//                            microlog.save();
+//                            refreshMicrologsRecyclerView();
                         }
 
 

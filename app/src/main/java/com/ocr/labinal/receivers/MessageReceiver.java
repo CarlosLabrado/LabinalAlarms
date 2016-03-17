@@ -12,15 +12,16 @@ import com.ocr.labinal.MainActivity;
 import com.ocr.labinal.SetPointsActivity;
 import com.ocr.labinal.TelephoneChangeActivity;
 import com.ocr.labinal.model.Microlog;
+import com.ocr.labinal.model.PlantEvent;
 import com.ocr.labinal.model.SetPoint;
 import com.ocr.labinal.model.Telephone;
-import com.ocr.labinal.model.Temperature;
 
 /**
  * Receiver that listens to SMS and then formats the result and saves into our database
  */
 public class MessageReceiver extends BroadcastReceiver {
     private final String TAG = MessageReceiver.class.getSimpleName();
+    private Context mContext;
 
     public static final String EXTRA_PHONE_NUMBER = "EXTRA_PHONE_NUMBER";
 
@@ -29,13 +30,14 @@ public class MessageReceiver extends BroadcastReceiver {
         Bundle pudsBundle = intent.getExtras();
         Object[] pdus = (Object[]) pudsBundle.get("pdus");
         SmsMessage messages = SmsMessage.createFromPdu((byte[]) pdus[0]);
+        mContext = context;
 //        Log.i(TAG, messages.getMessageBody());
-        if (messages.getMessageBody().contains("MICROLOG")) {
+        if (messages.getMessageBody().contains("LABINAL")) {
 //            Log.i(TAG, "tried to abort");
             abortBroadcast();
             String phoneNumber = formatMessage(messages);
             Intent newIntent = new Intent(context, MainActivity.class);
-            startNewActivityOnTop(context, newIntent, phoneNumber);
+            //startNewActivityOnTop(context, newIntent, phoneNumber);
         } else if (messages.getMessageBody().contains("01S?2")) {
 //            Log.i(TAG, "SetPoints received");
             String phoneNumber = formatMessageSetPoints(messages);
@@ -110,33 +112,71 @@ public class MessageReceiver extends BroadcastReceiver {
      */
     private String formatMessage(SmsMessage smsMessage) {
         String sms = smsMessage.getMessageBody();
-        String[] spitedMessage = sms.split(" ");
+        String[] splitMessage = sms.split("/");
         String temporalAddress = null;
         try {
-            String micrologId = spitedMessage[1].substring(1, 3);
-            String stateTemp = spitedMessage[2].substring(0, 3);
-            String stateString = "";
-            if (stateTemp.equalsIgnoreCase("NOR")) {
-                stateString = "Normal";
-            } else if (stateTemp.equalsIgnoreCase("ATN")) {
-                stateString = "Atencion";
-            } else if (stateTemp.equalsIgnoreCase("ADV")) {
-                stateString = "Advertencia";
-            } else if (stateTemp.equalsIgnoreCase("ALA")) {
-                stateString = "Alarma";
+            if (!sms.contains("PRUEBA")) { //if is not a test
+                String micrologId = splitMessage[0].substring(splitMessage[0].lastIndexOf("PLANTA") + 7, 17);
+                String state = splitMessage[0].substring(splitMessage[0].length() - 3); // NOR or ALA
+                String stateFull = "";
+                if (state.equalsIgnoreCase("NOR")) {
+                    stateFull = "Normal";
+                } else {
+                    stateFull = "Alarma";
+                }
+                String origin = splitMessage[1].substring(splitMessage[1].length() - 3); // CFE, BAT, GEN
+                String originFull = "";
+                if (origin.equalsIgnoreCase("CFE")) {
+                    originFull = "CFE";
+                } else if (origin.equalsIgnoreCase("BAT")) {
+                    originFull = "Bateria";
+                } else {
+                    originFull = "Generador";
+                }
+                int minutesOnBattery = 0;
+                int minutesOnTransfer = 0;
+                boolean plantFailure = false;
+                String upsState = "";
+                if (splitMessage[2].contains("GEN")) { // if is GEN we have to search on index 3 instead of 2
+                    originFull = originFull + " Generador";
+                    upsState = splitMessage[3].substring(splitMessage[3].length() - 3); // NOR, ALA
+
+                    if (origin.equalsIgnoreCase("BAT")) {
+                        String minutesOnBatteryString = splitMessage[3].substring(splitMessage[3].lastIndexOf("MIN") + 6, 20);
+                        minutesOnBattery = Integer.parseInt(minutesOnBatteryString);
+                        if (splitMessage[3].contains("FALLA")) {
+                            plantFailure = true;
+                        }
+                    } else if (origin.equalsIgnoreCase("GEN")) {
+                        String minutesOnTransferString = splitMessage[3].substring(splitMessage[3].lastIndexOf("MIN") + 6, 27);
+                        minutesOnTransfer = Integer.parseInt(minutesOnTransferString);
+                    }
+                } else {
+                    upsState = splitMessage[2].substring(splitMessage[2].length() - 3); // NOR, ALA
+
+                    if (origin.equalsIgnoreCase("BAT")) {
+                        String minutesOnBatteryString = splitMessage[2].substring(splitMessage[2].lastIndexOf("MIN") + 6, 20);
+                        minutesOnBattery = Integer.parseInt(minutesOnBatteryString);
+                        if (splitMessage[2].contains("FALLA")) {
+                            plantFailure = true;
+                        }
+                    } else if (origin.equalsIgnoreCase("GEN")) {
+                        String minutesOnTransferString = splitMessage[2].substring(splitMessage[2].lastIndexOf("MIN") + 6, 27);
+                        minutesOnTransfer = Integer.parseInt(minutesOnTransferString);
+                    }
+                }
+
+                temporalAddress = smsMessage.getOriginatingAddress(); // this will be the phone number
+                if (temporalAddress.length() > 10) {
+                    temporalAddress = smsMessage.getOriginatingAddress().substring(3, 13);
+                }
+
+                saveEvent(smsMessage, micrologId, stateFull, originFull, upsState, minutesOnBattery, minutesOnTransfer, plantFailure, temporalAddress);
+
+                saveMicrologID(temporalAddress, micrologId, stateFull);
+
             }
-            String temperatureString = spitedMessage[5].substring(0, 2);
-            String relativeHumidityString = spitedMessage[8];
-//            Log.d(TAG, micrologId + " " + stateString + " " + temperatureString + " " + relativeHumidityString);
 
-            temporalAddress = smsMessage.getOriginatingAddress();
-            if (temporalAddress.length() > 10) {
-                temporalAddress = smsMessage.getOriginatingAddress().substring(3, 13);
-            }
-
-            saveTemperature(smsMessage, micrologId, stateString, temperatureString, relativeHumidityString, temporalAddress);
-
-            saveMicrologID(temporalAddress, micrologId, stateString);
         } catch (Exception e) {
             e.printStackTrace();
 //            Log.e(TAG, "sms must not be well formatted");
@@ -145,16 +185,22 @@ public class MessageReceiver extends BroadcastReceiver {
         return temporalAddress;
     }
 
-    private void saveTemperature(SmsMessage smsMessage, String micrologId, String stateString, String temperatureString, String relativeHumidityString, String temporalAddress) {
-        Temperature temperature = new Temperature(
-                temporalAddress,
+    /**
+     * Saves an event to the database
+     */
+    private void saveEvent(SmsMessage smsMessage, String micrologId, String stateFull, String originFull, String upsState, int minutesOnBattery, int minutesOnTransfer, boolean plantFailure, String sensorPhoneNumber) {
+        PlantEvent plantEvent = new PlantEvent(
+                sensorPhoneNumber,
                 micrologId,
-                stateString,
-                Double.parseDouble(temperatureString),
-                Double.parseDouble(relativeHumidityString),
+                stateFull,
+                originFull,
+                upsState,
+                minutesOnBattery,
+                minutesOnTransfer,
+                plantFailure,
                 smsMessage.getTimestampMillis()
         );
-        temperature.save();
+        plantEvent.save();
     }
 
     private void saveMicrologID(String temporalAddress, String micrologId, String stateString) {
@@ -163,9 +209,12 @@ public class MessageReceiver extends BroadcastReceiver {
                 where("sensorPhoneNumber = ?", temporalAddress).
                 executeSingle();
 
-        if (microlog != null) {
-            microlog.sensorId = micrologId;
-            microlog.lastState = stateString;
+        if (microlog == null) {
+            microlog = new Microlog(temporalAddress, micrologId, temporalAddress, stateString, 0, 0, 0);
+            microlog.save();
+        } else {
+            microlog.setSensorId(micrologId);
+            microlog.setLastState(stateString);
             microlog.save();
         }
     }
@@ -233,8 +282,8 @@ public class MessageReceiver extends BroadcastReceiver {
      * Formats a sms that contains a single phone number to report
      *
      * @param smsMessage unformatted sms
-     * @param subString is the number of spaces from the beginning that we have to "ignore" to
-     *                  create our phone
+     * @param subString  is the number of spaces from the beginning that we have to "ignore" to
+     *                   create our phone
      * @param phoneIndex index to save in the database 1, 2, 3
      * @return phone number from sms
      */

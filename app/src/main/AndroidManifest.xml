@@ -19,7 +19,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.ocr.labinal.SensorSelectorActivity"
+            android:name=".SplashActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -61,13 +61,13 @@
 
         <meta-data
             android:name="AA_DB_NAME"
-            android:value="termocel.db"/>
+            android:value="labinal.db"/>
         <meta-data
             android:name="AA_DB_VERSION"
-            android:value="9"/>
+            android:value="1"/>
         <meta-data
             android:name="AA_MODELS"
-            android:value="com.ocr.termocel.model.Microlog, com.ocr.termocel.model.Temperature, com.ocr.termocel.model.Telephone, com.ocr.termocel.model.SetPoint"/>
+            android:value="com.ocr.labinal.model.Microlog, com.ocr.labinal.model.Temperature, com.ocr.labinal.model.Telephone, com.ocr.labinal.model.SetPoint, com.ocr.labinal.model.PlantEvent"/>
 
         <receiver
             android:name="com.ocr.labinal.receivers.MessageReceiver"

@@ -25,15 +25,64 @@ public class Microlog extends Model {
     @Column
     public int numberOfPhonesToReport;
 
-    public Microlog(String sensorPhoneNumber, String sensorId, String name, String lastState, int numberOfPhonesToReport) {
+    @Column
+    public long latitude;
+
+    @Column
+    public long longitude;
+
+    public Microlog(String sensorPhoneNumber, String sensorId, String name, String lastState, int numberOfPhonesToReport, long latitude, long longitude) {
         this.sensorPhoneNumber = sensorPhoneNumber;
         this.sensorId = sensorId;
         this.name = name;
         this.lastState = lastState;
         this.numberOfPhonesToReport = numberOfPhonesToReport;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public Microlog() {
         super();
     }
+
+    public String getSensorPhoneNumber() {
+        return sensorPhoneNumber;
+    }
+
+    public void setSensorPhoneNumber(String sensorPhoneNumber) {
+        this.sensorPhoneNumber = sensorPhoneNumber;
+    }
+
+    public String getSensorId() {
+        return sensorId;
+    }
+
+    public void setSensorId(String sensorId) {
+        this.sensorId = sensorId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLastState() {
+        return lastState;
+    }
+
+    public void setLastState(String lastState) {
+        this.lastState = lastState;
+    }
+
+    public int getNumberOfPhonesToReport() {
+        return numberOfPhonesToReport;
+    }
+
+    public void setNumberOfPhonesToReport(int numberOfPhonesToReport) {
+        this.numberOfPhonesToReport = numberOfPhonesToReport;
+    }
+
 }

@@ -343,15 +343,15 @@ public class MapAndListFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (!editTextNewPhoneNumber.getText().toString().equalsIgnoreCase("")) {
-                    Microlog microlog = new Microlog(
-                            editTextNewPhoneNumber.getText().toString(),
-                            null,
-                            editTextName.getText().toString(),
-                            "NORMAL",
-                            3
-                    );
-                    microlog.save();
-                    refreshRecyclerView();
+//                    Microlog microlog = new Microlog(
+//                            editTextNewPhoneNumber.getText().toString(),
+//                            null,
+//                            editTextName.getText().toString(),
+//                            "NORMAL",
+//                            3
+//                    );
+//                    microlog.save();
+//                    refreshRecyclerView();
                 }
 
             }
