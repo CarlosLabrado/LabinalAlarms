@@ -32,6 +32,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.ocr.labinal.custom.recyclerView.CustomAdapter;
 import com.ocr.labinal.custom.recyclerView.EmptyRecyclerView;
+import com.ocr.labinal.events.EditNameEvent;
 import com.ocr.labinal.events.RefreshMicrologsEvent;
 import com.ocr.labinal.events.SelectContactFromPhoneEvent;
 import com.ocr.labinal.events.SensorClickedEvent;
@@ -221,6 +222,12 @@ public class MapAndListFragment extends Fragment {
 
     private void initDataSet() {
         mDataSet = getSensors();
+    }
+
+    @Subscribe
+    public void callToInitDataSetFromDetail(EditNameEvent event) {
+        initDataSet();
+        mAdapter.notifyDataSetChanged();
     }
 
     public List<Microlog> getSensors() {

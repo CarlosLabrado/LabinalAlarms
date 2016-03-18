@@ -6,7 +6,8 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@id/toolbar">
+                android:layout_below="@id/toolbar"
+                xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
         android:id="@+id/textViewContactName"
@@ -34,16 +35,35 @@
         android:textStyle="bold"
         tools:text="6143032079"/>
 
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:elevation="@dimen/fab_elevation"
+        android:src="@drawable/ic_create_white_24dp"
+        app:backgroundTint="@color/accent"
+        app:borderWidth="0dp"
+        app:elevation="6dp"
+        app:fabSize="normal"
+        app:layout_anchor="@id/textViewTelephone"
+        app:layout_anchorGravity="bottom|end"
+        app:pressedTranslationZ="12dp"
+        android:layout_below="@+id/textViewTelephone"
+        android:layout_centerHorizontal="true"/>
+
+
     <LinearLayout
         android:id="@+id/lastDataContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textViewTelephone"
-        android:layout_centerHorizontal="true"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:visibility="gone"
-        tools:visibility="visible">
+        tools:visibility="visible"
+        android:layout_below="@+id/fab_edit"
+        android:layout_centerHorizontal="true">
 
         <RelativeLayout
             android:layout_width="wrap_content"

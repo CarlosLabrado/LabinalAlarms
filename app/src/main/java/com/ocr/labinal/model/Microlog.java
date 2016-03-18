@@ -26,12 +26,12 @@ public class Microlog extends Model {
     public int numberOfPhonesToReport;
 
     @Column
-    public long latitude;
+    public double latitude;
 
     @Column
-    public long longitude;
+    public double longitude;
 
-    public Microlog(String sensorPhoneNumber, String sensorId, String name, String lastState, int numberOfPhonesToReport, long latitude, long longitude) {
+    public Microlog(String sensorPhoneNumber, String sensorId, String name, String lastState, int numberOfPhonesToReport, double latitude, double longitude) {
         this.sensorPhoneNumber = sensorPhoneNumber;
         this.sensorId = sensorId;
         this.name = name;
@@ -85,4 +85,19 @@ public class Microlog extends Model {
         this.numberOfPhonesToReport = numberOfPhonesToReport;
     }
 
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
 }

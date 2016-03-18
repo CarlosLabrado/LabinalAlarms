@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nombre"
+        android:id="@+id/textView13"
+        android:layout_gravity="center_horizontal"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/editTextDialogEditName"
+        android:layout_gravity="center_horizontal"
+        android:singleLine="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Latitud"
+        android:id="@+id/textView2"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/editTextDialogEditLat"
+        android:layout_gravity="center_horizontal"
+        android:inputType="numberSigned"
+        android:singleLine="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Longitud"
+        android:id="@+id/textView12"
+        android:layout_gravity="center_horizontal"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/editTextDialogEditLon"
+        android:layout_gravity="center_horizontal"
+        android:inputType="numberSigned"
+        android:singleLine="true"/>
+
+    <ImageButton
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:id="@+id/imageButtonActualCords"
+        android:layout_gravity="center_horizontal"
+        android:elevation="8dp"
+        android:src="@drawable/ic_my_location_white_24dp"
+        android:background="@drawable/custom_button_ocr"/>
+</LinearLayout>

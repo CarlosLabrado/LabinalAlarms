@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.telephony.SmsManager;
@@ -21,6 +22,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -31,6 +34,8 @@ import com.activeandroid.query.Select;
 import com.firebase.client.Firebase;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
+import com.google.android.gms.maps.model.LatLng;
+import com.ocr.labinal.events.EditNameEvent;
 import com.ocr.labinal.events.GoToDetailEvent;
 import com.ocr.labinal.model.Microlog;
 import com.ocr.labinal.model.Temperature;
@@ -63,7 +68,7 @@ public class DetailFragment extends Fragment {
 
     public static Bus bus;
 
-    private Microlog microlog;
+    private Microlog mMicrolog;
 
     private String mContactName;
     private String mTelephoneNumber;
@@ -81,6 +86,7 @@ public class DetailFragment extends Fragment {
     private ShowcaseView mShowcaseView;
     private int mShowCaseCounter = 0;
 
+    private LatLng mLatLng;
 
     @Bind(com.ocr.labinal.R.id.textViewContactName)
     TextView textViewContactName;
@@ -111,6 +117,9 @@ public class DetailFragment extends Fragment {
 
     @Bind(com.ocr.labinal.R.id.buttonUpdateState)
     Button mButtonUpdateSelected;
+    @Bind(R.id.fab_edit)
+    FloatingActionButton mFabEdit;
+
 
     @OnClick(com.ocr.labinal.R.id.buttonUpdateState)
     public void buttonClicked() {
@@ -151,8 +160,8 @@ public class DetailFragment extends Fragment {
         comesFromReceiver = intent.getBooleanExtra(Constants.EXTRA_COMES_FROM_RECEIVER, false);
         if (comesFromReceiver) {
             mTelephoneNumber = intent.getStringExtra(MessageReceiver.EXTRA_PHONE_NUMBER);
-            microlog = getMicrologByPhoneNumber(mTelephoneNumber);
-            mContactName = microlog.name;
+            mMicrolog = getMicrologByPhoneNumber(mTelephoneNumber);
+            mContactName = mMicrolog.getName();
         }
 
         isSomethingSelected = MainActivity.getIsSomethingSelected();
@@ -183,9 +192,9 @@ public class DetailFragment extends Fragment {
     public void micrologClicked(GoToDetailEvent event) {
         if (event != null) {
             isSomethingSelected = true;
-            microlog = event.getMicrolog();
-            mTelephoneNumber = microlog.sensorPhoneNumber;
-            mContactName = microlog.name;
+            mMicrolog = event.getMicrolog();
+            mTelephoneNumber = mMicrolog.getSensorPhoneNumber();
+            mContactName = mMicrolog.getName();
 
             textViewTelephone.setText(mTelephoneNumber);
             textViewContactName.setText(mContactName);
@@ -334,6 +343,70 @@ public class DetailFragment extends Fragment {
 
     public List<Temperature> getTemperatureList(String telephoneNumber) {
         return new Select().from(Temperature.class).where("sensorPhoneNumber = ?", telephoneNumber).orderBy("timestamp ASC").execute();
+    }
+
+    @Subscribe
+    public void updateLatLng(LatLng latLng) {
+        mLatLng = latLng;
+    }
+
+    @OnClick(R.id.fab_edit)
+    public void buttonEditClicked() {
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_edit, null);
+
+        final EditText editTextName = (EditText) view.findViewById(R.id.editTextDialogEditName);
+        final EditText editTextLat = (EditText) view.findViewById(R.id.editTextDialogEditLat);
+        final EditText editTextLon = (EditText) view.findViewById(R.id.editTextDialogEditLon);
+
+        ImageButton imageButtonActualCords = (ImageButton) view.findViewById(R.id.imageButtonActualCords);
+        imageButtonActualCords.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mLatLng != null) {
+                    editTextLat.setText(String.valueOf(mLatLng.latitude));
+                    editTextLon.setText(String.valueOf(mLatLng.longitude));
+                }
+            }
+        });
+
+        if (mMicrolog != null) {
+            editTextName.setText(mMicrolog.getName());
+            editTextLat.setText(String.valueOf(mMicrolog.getLatitude()));
+            editTextLon.setText(String.valueOf(mMicrolog.getLongitude()));
+        }
+
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getActivity());
+        builder.setView(view);
+
+        builder.setTitle(R.string.dialog_edit_sensor_title);
+        builder.setPositiveButton(R.string.dialog_update_positive, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (!editTextName.getText().toString().isEmpty()) {
+                    mMicrolog.setName(editTextName.getText().toString());
+                    mMicrolog.setLatitude(Double.parseDouble(editTextLat.getText().toString()));
+                    mMicrolog.setLongitude(Double.parseDouble(editTextLon.getText().toString()));
+                    mMicrolog.save();
+
+                    mTelephoneNumber = mMicrolog.getSensorPhoneNumber();
+                    mContactName = mMicrolog.getName();
+
+                    textViewTelephone.setText(mTelephoneNumber);
+                    textViewContactName.setText(mContactName);
+
+                    MapAndListFragment.mapBus.post(new EditNameEvent());
+                }
+            }
+        });
+        builder.setNegativeButton(R.string.dialog_update_negative, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.show();
+
     }
 
 
