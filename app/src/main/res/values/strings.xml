@@ -10,13 +10,13 @@
     <string name="action_help">Ayuda</string>
 
 
-    <string name="firebase_url">https://autolog.firebaseio.com/</string>
+    <string name="firebase_url">nothing</string>
 
 
     <string name="title_activity_sensor_selector">SensorSelector</string>
     <string name="toast_message_send">Mensaje enviado con éxito</string>
     <string name="toast_message_not_send">Hay un problema enviando el mensaje</string>
-    <string name="main_no_info">No tenemos información de este Microlog, por favor presione el botón para adquirir el estado actual.</string>
+    <string name="main_no_info">No tenemos información de este Microlog, por favor presione el botón de Actualizar Estado para adquirir el estado actual.</string>
     <string name="main_refresh_state_button">Actualizar Estado</string>
 
     <string name="title_activity_telephone_change">TelephoneChangeActivity</string>

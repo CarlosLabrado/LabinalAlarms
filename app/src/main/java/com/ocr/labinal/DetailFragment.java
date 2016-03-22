@@ -18,7 +18,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -26,7 +25,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +36,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.ocr.labinal.events.EditNameEvent;
 import com.ocr.labinal.events.GoToDetailEvent;
 import com.ocr.labinal.model.Microlog;
+import com.ocr.labinal.model.PlantEvent;
 import com.ocr.labinal.model.Temperature;
 import com.ocr.labinal.receivers.MessageReceiver;
 import com.ocr.labinal.utilities.AndroidBus;
@@ -80,6 +79,7 @@ public class DetailFragment extends Fragment {
     private boolean isSomethingSelected = false;
 
     List<Temperature> mTemperatures;
+    List<PlantEvent> mEvents;
 
     boolean comesFromReceiver = false;
 
@@ -93,15 +93,14 @@ public class DetailFragment extends Fragment {
 
     @Bind(com.ocr.labinal.R.id.textViewTelephone)
     TextView textViewTelephone;
-
-    @Bind(com.ocr.labinal.R.id.textViewLastKnownTemp)
-    TextView textViewLastKnownTemp;
-
-    @Bind(com.ocr.labinal.R.id.textViewStatus)
-    TextView textViewStatus;
-
-    @Bind(com.ocr.labinal.R.id.textViewHumidity)
-    TextView textViewHumidity;
+    @Bind(R.id.textViewState)
+    TextView mTextViewState;
+    @Bind(R.id.textViewGenerator)
+    TextView mTextViewGenerator;
+    @Bind(R.id.textViewBattery)
+    TextView mTextViewBattery;
+    @Bind(R.id.textViewMinutesOnBattery)
+    TextView mTextViewMinutesOnBattery;
 
     @Bind(com.ocr.labinal.R.id.textViewNoInfo)
     TextView textViewNoInfo;
@@ -111,9 +110,6 @@ public class DetailFragment extends Fragment {
 
     @Bind(com.ocr.labinal.R.id.lastDataContainer)
     LinearLayout lastDataContainer;
-
-    @Bind(com.ocr.labinal.R.id.seekBarThermometer)
-    SeekBar seekBarThermometer;
 
     @Bind(com.ocr.labinal.R.id.buttonUpdateState)
     Button mButtonUpdateSelected;
@@ -152,7 +148,9 @@ public class DetailFragment extends Fragment {
 
         ButterKnife.bind(this, view);
 
-        drawThermometer();
+        mFabEdit.hide();
+
+        //drawThermometer();
 
         lastDataContainer.setVisibility(View.GONE);
 
@@ -165,9 +163,12 @@ public class DetailFragment extends Fragment {
         }
 
         isSomethingSelected = MainActivity.getIsSomethingSelected();
+        // if there is nothing selected we don't want to show the detail or the edit button
         if (!isSomethingSelected) {
             textViewNoInfo.setText(com.ocr.labinal.R.string.no_microlog_selected);
             mButtonUpdateSelected.setVisibility(View.INVISIBLE);
+        } else {
+            mFabEdit.show();
         }
 
 
@@ -192,6 +193,7 @@ public class DetailFragment extends Fragment {
     public void micrologClicked(GoToDetailEvent event) {
         if (event != null) {
             isSomethingSelected = true;
+            mFabEdit.show();
             mMicrolog = event.getMicrolog();
             mTelephoneNumber = mMicrolog.getSensorPhoneNumber();
             mContactName = mMicrolog.getName();
@@ -200,43 +202,36 @@ public class DetailFragment extends Fragment {
             textViewContactName.setText(mContactName);
 
             mButtonUpdateSelected.setVisibility(View.VISIBLE);
-            getExistingTemperaturesForMain();
-
-
+            getExistingEventsForCurrent();
+            //getExistingTemperaturesForMain();
         }
     }
 
-
-    private void getExistingTemperaturesForMain() {
-        mTemperatures = getTemperatureList(mTelephoneNumber);
-        if (mTemperatures != null && !mTemperatures.isEmpty()) {
+    private void getExistingEventsForCurrent() {
+        mEvents = getPlantEventList(mTelephoneNumber);
+        if (mEvents != null && !mEvents.isEmpty()) {
             lastDataContainer.setVisibility(View.VISIBLE);
             textViewNoInfo.setVisibility(View.GONE);
-            Temperature temperature = mTemperatures.get(mTemperatures.size() - 1);
 
-            textViewLastKnownTemp.setText(String.valueOf(temperature.tempInFahrenheit) + " \u00B0 F");
+            PlantEvent plantEvent = mEvents.get(mEvents.size() - 1);
 
-            seekBarThermometer.setProgress((int) temperature.tempInFahrenheit);
-
-            textViewStatus.setText(temperature.status);
-            switch (temperature.status) {
-                case "Normal":
-                    textViewStatus.setTextColor(getResources().getColor(com.ocr.labinal.R.color.green_700));
-                    break;
-                case "Atencion":
-                    textViewStatus.setTextColor(getResources().getColor(com.ocr.labinal.R.color.yellow_700));
-                    break;
-                case "Advertencia":
-                    textViewStatus.setTextColor(getResources().getColor(com.ocr.labinal.R.color.orange_500));
-                    break;
-                case "Alarma":
-                    textViewStatus.setTextColor(getResources().getColor(com.ocr.labinal.R.color.red_600));
-                    break;
+            if (plantEvent.isPlantFailure()) {
+                mTextViewState.setTextColor(getResources().getColor(com.ocr.labinal.R.color.red_600));
+                mTextViewState.setText("Falla");
+            } else if (plantEvent.getState().equalsIgnoreCase("alarma")) {
+                mTextViewState.setTextColor(getResources().getColor(com.ocr.labinal.R.color.red_600));
+                mTextViewState.setText(plantEvent.getState());
+            } else {
+                mTextViewState.setTextColor(getResources().getColor(com.ocr.labinal.R.color.green_700));
+                mTextViewState.setText(plantEvent.getState());
             }
-            textViewHumidity.setText(String.valueOf(temperature.humidity) + "%");
+
+            mTextViewGenerator.setText(plantEvent.getPowerOrigin());
+            mTextViewBattery.setText(plantEvent.getUpsState());
+            mTextViewMinutesOnBattery.setText(String.valueOf(plantEvent.getMinutesOnBattery()));
 
             Calendar calendar = new GregorianCalendar();
-            calendar.setTimeInMillis(temperature.timestamp);
+            calendar.setTimeInMillis(plantEvent.getTimeInMillis());
 
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", java.util.Locale.getDefault());
             simpleDateFormat.setCalendar(calendar);
@@ -246,51 +241,117 @@ public class DetailFragment extends Fragment {
             if (comesFromReceiver) {
                 Firebase myFirebaseRef = new Firebase(getResources().getString(com.ocr.labinal.R.string.firebase_url));
                 Calendar c = Calendar.getInstance();
-                myFirebaseRef.child(mTelephoneNumber).child(String.valueOf(c.getTimeInMillis())).setValue(temperature);
+                myFirebaseRef.child(mTelephoneNumber).child(String.valueOf(c.getTimeInMillis())).setValue(plantEvent);
 
                 // clear the flag
                 comesFromReceiver = false;
 
             }
+
+            plantEvent.getMicrologId();
+            plantEvent.getState();
+            plantEvent.getPowerOrigin();
+            plantEvent.getMinutesOnBattery();
+            plantEvent.getMinutesOnTransfer();
+            plantEvent.getTimeInMillis();
+            plantEvent.isPlantFailure();
+
+
         } else {
             textViewNoInfo.setVisibility(View.VISIBLE);
+            textViewNoInfo.setText(getResources().getString(R.string.main_no_info));
             lastDataContainer.setVisibility(View.GONE);
         }
     }
 
-    /**
-     * creates a gradient to show the shades from red to green trying to simulate a thermometer,
-     * assigns this gradient to the seekBar and prevents it from capturing on touch events
-     */
-    private void drawThermometer() {
-        seekBarThermometer.setClickable(false);
-        seekBarThermometer.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//                Log.d(TAG, "PROGRESS CHANGED " + progress);
-                seekBarThermometer.setThumb(writeOnDrawable(com.ocr.labinal.R.drawable.thumb, String.valueOf(progress)));
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-        seekBarThermometer.setFocusable(false);
-        seekBarThermometer.setOnTouchListener(new View.OnTouchListener() {
-                                                  @Override
-                                                  public boolean onTouch(View view, MotionEvent motionEvent) {
-                                                      return true;
-                                                  }
-                                              }
-        );
+    private List<PlantEvent> getPlantEventList(String telephoneNumber) {
+        return new Select().from(PlantEvent.class).where("sensorPhoneNumber = ?", telephoneNumber).orderBy("timeInMillis ASC").execute();
     }
+
+//    private void getExistingTemperaturesForMain() {
+//        mTemperatures = getTemperatureList(mTelephoneNumber);
+//        if (mTemperatures != null && !mTemperatures.isEmpty()) {
+//            lastDataContainer.setVisibility(View.VISIBLE);
+//            textViewNoInfo.setVisibility(View.GONE);
+//            Temperature temperature = mTemperatures.get(mTemperatures.size() - 1);
+//
+//            textViewLastKnownTemp.setText(String.valueOf(temperature.tempInFahrenheit) + " \u00B0 F");
+//
+//            seekBarThermometer.setProgress((int) temperature.tempInFahrenheit);
+//
+//            textViewStatus.setText(temperature.status);
+//            switch (temperature.status) {
+//                case "Normal":
+//                    textViewStatus.setTextColor(getResources().getColor(com.ocr.labinal.R.color.green_700));
+//                    break;
+//                case "Atencion":
+//                    textViewStatus.setTextColor(getResources().getColor(com.ocr.labinal.R.color.yellow_700));
+//                    break;
+//                case "Advertencia":
+//                    textViewStatus.setTextColor(getResources().getColor(com.ocr.labinal.R.color.orange_500));
+//                    break;
+//                case "Alarma":
+//                    textViewStatus.setTextColor(getResources().getColor(com.ocr.labinal.R.color.red_600));
+//                    break;
+//            }
+//            textViewHumidity.setText(String.valueOf(temperature.humidity) + "%");
+//
+//            Calendar calendar = new GregorianCalendar();
+//            calendar.setTimeInMillis(temperature.timestamp);
+//
+//            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", java.util.Locale.getDefault());
+//            simpleDateFormat.setCalendar(calendar);
+//
+//            textViewLastUpdateDate.setText(simpleDateFormat.format(calendar.getTime()));
+//
+//            if (comesFromReceiver) {
+//                Firebase myFirebaseRef = new Firebase(getResources().getString(com.ocr.labinal.R.string.firebase_url));
+//                Calendar c = Calendar.getInstance();
+//                myFirebaseRef.child(mTelephoneNumber).child(String.valueOf(c.getTimeInMillis())).setValue(temperature);
+//
+//                // clear the flag
+//                comesFromReceiver = false;
+//
+//            }
+//        } else {
+//            textViewNoInfo.setVisibility(View.VISIBLE);
+//            lastDataContainer.setVisibility(View.GONE);
+//        }
+//    }
+
+//    /**
+//     * creates a gradient to show the shades from red to green trying to simulate a thermometer,
+//     * assigns this gradient to the seekBar and prevents it from capturing on touch events
+//     */
+//    private void drawThermometer() {
+//        seekBarThermometer.setClickable(false);
+//        seekBarThermometer.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+////                Log.d(TAG, "PROGRESS CHANGED " + progress);
+//                seekBarThermometer.setThumb(writeOnDrawable(com.ocr.labinal.R.drawable.thumb, String.valueOf(progress)));
+//
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//
+//            }
+//
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//
+//            }
+//        });
+//        seekBarThermometer.setFocusable(false);
+//        seekBarThermometer.setOnTouchListener(new View.OnTouchListener() {
+//                                                  @Override
+//                                                  public boolean onTouch(View view, MotionEvent motionEvent) {
+//                                                      return true;
+//                                                  }
+//                                              }
+//        );
+//    }
 
     /**
      * Writes text on the Thumb drawable

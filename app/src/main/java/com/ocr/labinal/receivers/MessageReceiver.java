@@ -166,12 +166,19 @@ public class MessageReceiver extends BroadcastReceiver {
                     }
                 }
 
+                String upsStateFull = "";
+                if (upsState.equalsIgnoreCase("NOR")) {
+                    upsStateFull = "Normal";
+                } else {
+                    upsStateFull = "Alarma";
+                }
+
                 temporalAddress = smsMessage.getOriginatingAddress(); // this will be the phone number
                 if (temporalAddress.length() > 10) {
                     temporalAddress = smsMessage.getOriginatingAddress().substring(3, 13);
                 }
 
-                saveEvent(smsMessage, micrologId, stateFull, originFull, upsState, minutesOnBattery, minutesOnTransfer, plantFailure, temporalAddress);
+                saveEvent(smsMessage, micrologId, stateFull, originFull, upsStateFull, minutesOnBattery, minutesOnTransfer, plantFailure, temporalAddress);
 
                 saveMicrologID(temporalAddress, micrologId, stateFull);
 

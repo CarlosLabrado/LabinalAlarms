@@ -10,4 +10,5 @@ public class Constants {
     public static final String EXTRA_COMES_FROM_RECEIVER = "EXTRA_COMES_FROM_RECEIVER";
     public static final int ACTIVITY_RESULT_CONTACT = 101;
 
+    public static final String SP_IS_FIRST_TIME = "SP_IS_FIRST_TIME";
 }

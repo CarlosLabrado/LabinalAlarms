@@ -46,7 +46,7 @@
         app:backgroundTint="@color/accent"
         app:borderWidth="0dp"
         app:elevation="6dp"
-        app:fabSize="normal"
+        app:fabSize="mini"
         app:layout_anchor="@id/textViewTelephone"
         app:layout_anchorGravity="bottom|end"
         app:pressedTranslationZ="12dp"
@@ -65,51 +65,12 @@
         android:layout_below="@+id/fab_edit"
         android:layout_centerHorizontal="true">
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="0dp"
-                android:layout_marginTop="0dp"
-                android:text="@string/text_100_F"/>
-
-            <TextView
-                android:id="@+id/textView10"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:text="@string/text_0F"/>
-        </RelativeLayout>
-
-        <com.ocr.labinal.custom.widget.VerticalSeekBar
-            android:id="@+id/seekBarThermometer"
-            android:layout_width="wrap_content"
-            android:layout_height="250dp"
-            android:layout_below="@+id/textViewContactName"
-            android:layout_toLeftOf="@+id/stateDataContainer"
-            android:layout_toStartOf="@+id/stateDataContainer"
-            android:max="100"
-            android:padding="10dp"
-            android:progressDrawable="@drawable/progress_gradient"
-            android:thumb="@drawable/thumb"
-            tools:progress="50"/>
-
         <LinearLayout
             android:id="@+id/stateDataContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/textViewTelephone"
             android:layout_centerHorizontal="true"
-            android:layout_marginLeft="10dp"
 
             android:orientation="vertical">
 
@@ -119,10 +80,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="@string/main_last_known_temp"/>
+                android:text="Estado:"/>
 
             <TextView
-                android:id="@+id/textViewLastKnownTemp"
+                android:id="@+id/textViewState"
                 style="@style/TextViewNormal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -133,10 +94,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="@string/main_status"/>
+                android:text="Trabajando con:"/>
 
             <TextView
-                android:id="@+id/textViewStatus"
+                android:id="@+id/textViewGenerator"
                 style="@style/TextViewNormal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -147,10 +108,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="@string/main_relative_humidity"/>
+                android:text="Bateria:"/>
 
             <TextView
-                android:id="@+id/textViewHumidity"
+                android:id="@+id/textViewBattery"
+                style="@style/TextViewNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/textView11"
+                style="@style/TextViewTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Tiempo de Bateria:"/>
+
+            <TextView
+                android:id="@+id/textViewMinutesOnBattery"
                 style="@style/TextViewNormal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -197,17 +172,6 @@
         android:paddingRight="20dp"
         android:text="@string/main_refresh_state_button"
         android:textColor="@color/grey_100"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/buttonUpdateState"
-        android:layout_marginTop="46dp"
-        android:orientation="horizontal">
-
-    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"

@@ -6,12 +6,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
@@ -71,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements
 
     SmsManager smsManager;
 
+    public boolean isFirstRun = true;
 
     @Bind(com.ocr.labinal.R.id.toolbar)
     Toolbar toolbar;
@@ -88,6 +91,18 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(com.ocr.labinal.R.layout.activity_main);
 
         ButterKnife.bind(this);
+
+        SharedPreferences settings =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        isFirstRun = settings.getBoolean(Constants.SP_IS_FIRST_TIME, true);
+
+        if (isFirstRun) {
+            createTheHardcodedMicrologs();
+            isFirstRun = false;
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean(Constants.SP_IS_FIRST_TIME, isFirstRun);
+            editor.commit();
+        }
 
         bus = new AndroidBus();
         bus.register(this);
@@ -136,6 +151,28 @@ public class MainActivity extends AppCompatActivity implements
         smsManager = SmsManager.getDefault();
 
 
+    }
+
+    /**
+     * Only runs the first time
+     */
+    private void createTheHardcodedMicrologs() {
+        Microlog microlog = new Microlog(
+                "6141849010",
+                "01",
+                "Planta 1",
+                "Desconocido",
+                0, 28.6522408, -106.1279873
+        );
+        microlog.save();
+        Microlog microlog2 = new Microlog(
+                "6141846841",
+                "02",
+                "Planta 2",
+                "Desconocido",
+                0, 28.7118695, -106.1136756
+        );
+        microlog2.save();
     }
 
     /**
