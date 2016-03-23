@@ -78,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements
 
     public boolean isFirstRun = true;
 
+    boolean comesFromReceiver = false;
+
     @Bind(com.ocr.labinal.R.id.toolbar)
     Toolbar toolbar;
 
@@ -131,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
         Intent intent = getIntent();
-        boolean comesFromReceiver = intent.getBooleanExtra(Constants.EXTRA_COMES_FROM_RECEIVER, false);
+        comesFromReceiver = intent.getBooleanExtra(Constants.EXTRA_COMES_FROM_RECEIVER, false);
         if (comesFromReceiver) {
             mTelephoneNumber = intent.getStringExtra(MessageReceiver.EXTRA_PHONE_NUMBER);
             microlog = getMicrologByPhoneNumber(mTelephoneNumber);
@@ -657,6 +659,9 @@ public class MainActivity extends AppCompatActivity implements
 
     private void refreshMicrologsRecyclerView() {
         MapAndListFragment.mapBus.post(new RefreshMicrologsEvent());
+        if (comesFromReceiver) {
+            DetailFragment.bus.post(new GoToDetailEvent(microlog));
+        }
     }
 
     @Override

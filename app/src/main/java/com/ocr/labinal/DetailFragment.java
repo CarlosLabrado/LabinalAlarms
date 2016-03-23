@@ -2,18 +2,11 @@ package com.ocr.labinal;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.telephony.SmsManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,7 +32,6 @@ import com.ocr.labinal.model.PlantEvent;
 import com.ocr.labinal.model.Temperature;
 import com.ocr.labinal.receivers.MessageReceiver;
 import com.ocr.labinal.utilities.AndroidBus;
-import com.ocr.labinal.utilities.Tools;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -265,39 +257,6 @@ public class DetailFragment extends Fragment {
 
     private List<PlantEvent> getPlantEventList(String telephoneNumber) {
         return new Select().from(PlantEvent.class).where("sensorPhoneNumber = ?", telephoneNumber).orderBy("timeInMillis ASC").execute();
-    }
-
-    /**
-     * Writes text on the Thumb drawable
-     *
-     * @param drawableId the resource Id
-     * @param text       text to be drawn
-     * @return bitmap
-     */
-    public BitmapDrawable writeOnDrawable(int drawableId, String text) {
-
-        Bitmap bm = BitmapFactory.decodeResource(getResources(), drawableId).copy(Bitmap.Config.ARGB_8888, true);
-
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.BLACK);
-        paint.setTextSize(Tools.fromDpToPx(14));
-
-
-        Canvas canvas = new Canvas(bm);
-        canvas.save();
-
-        int x = (bm.getWidth() - canvas.getWidth()) / 2;
-        int y = (bm.getHeight() + canvas.getHeight()) / 2;
-
-        Log.d("X and Y", "x=" + x + " y=" + y);
-        canvas.rotate(90f);
-
-        canvas.drawText(text, 5, -y / 4, paint);
-
-        canvas.restore();
-
-        return new BitmapDrawable(getResources(), bm);
     }
 
     public void getUpdatedSensorInfo(String telephoneNumber) {
