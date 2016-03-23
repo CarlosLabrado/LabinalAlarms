@@ -29,7 +29,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.activeandroid.query.Select;
-import com.firebase.client.Firebase;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.google.android.gms.maps.model.LatLng;
@@ -239,9 +238,9 @@ public class DetailFragment extends Fragment {
             textViewLastUpdateDate.setText(simpleDateFormat.format(calendar.getTime()));
 
             if (comesFromReceiver) {
-                Firebase myFirebaseRef = new Firebase(getResources().getString(com.ocr.labinal.R.string.firebase_url));
-                Calendar c = Calendar.getInstance();
-                myFirebaseRef.child(mTelephoneNumber).child(String.valueOf(c.getTimeInMillis())).setValue(plantEvent);
+//                Firebase myFirebaseRef = new Firebase(getResources().getString(com.ocr.labinal.R.string.firebase_url));
+//                Calendar c = Calendar.getInstance();
+//                myFirebaseRef.child(mTelephoneNumber).child(String.valueOf(c.getTimeInMillis())).setValue(plantEvent);
 
                 // clear the flag
                 comesFromReceiver = false;
@@ -267,91 +266,6 @@ public class DetailFragment extends Fragment {
     private List<PlantEvent> getPlantEventList(String telephoneNumber) {
         return new Select().from(PlantEvent.class).where("sensorPhoneNumber = ?", telephoneNumber).orderBy("timeInMillis ASC").execute();
     }
-
-//    private void getExistingTemperaturesForMain() {
-//        mTemperatures = getTemperatureList(mTelephoneNumber);
-//        if (mTemperatures != null && !mTemperatures.isEmpty()) {
-//            lastDataContainer.setVisibility(View.VISIBLE);
-//            textViewNoInfo.setVisibility(View.GONE);
-//            Temperature temperature = mTemperatures.get(mTemperatures.size() - 1);
-//
-//            textViewLastKnownTemp.setText(String.valueOf(temperature.tempInFahrenheit) + " \u00B0 F");
-//
-//            seekBarThermometer.setProgress((int) temperature.tempInFahrenheit);
-//
-//            textViewStatus.setText(temperature.status);
-//            switch (temperature.status) {
-//                case "Normal":
-//                    textViewStatus.setTextColor(getResources().getColor(com.ocr.labinal.R.color.green_700));
-//                    break;
-//                case "Atencion":
-//                    textViewStatus.setTextColor(getResources().getColor(com.ocr.labinal.R.color.yellow_700));
-//                    break;
-//                case "Advertencia":
-//                    textViewStatus.setTextColor(getResources().getColor(com.ocr.labinal.R.color.orange_500));
-//                    break;
-//                case "Alarma":
-//                    textViewStatus.setTextColor(getResources().getColor(com.ocr.labinal.R.color.red_600));
-//                    break;
-//            }
-//            textViewHumidity.setText(String.valueOf(temperature.humidity) + "%");
-//
-//            Calendar calendar = new GregorianCalendar();
-//            calendar.setTimeInMillis(temperature.timestamp);
-//
-//            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", java.util.Locale.getDefault());
-//            simpleDateFormat.setCalendar(calendar);
-//
-//            textViewLastUpdateDate.setText(simpleDateFormat.format(calendar.getTime()));
-//
-//            if (comesFromReceiver) {
-//                Firebase myFirebaseRef = new Firebase(getResources().getString(com.ocr.labinal.R.string.firebase_url));
-//                Calendar c = Calendar.getInstance();
-//                myFirebaseRef.child(mTelephoneNumber).child(String.valueOf(c.getTimeInMillis())).setValue(temperature);
-//
-//                // clear the flag
-//                comesFromReceiver = false;
-//
-//            }
-//        } else {
-//            textViewNoInfo.setVisibility(View.VISIBLE);
-//            lastDataContainer.setVisibility(View.GONE);
-//        }
-//    }
-
-//    /**
-//     * creates a gradient to show the shades from red to green trying to simulate a thermometer,
-//     * assigns this gradient to the seekBar and prevents it from capturing on touch events
-//     */
-//    private void drawThermometer() {
-//        seekBarThermometer.setClickable(false);
-//        seekBarThermometer.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-////                Log.d(TAG, "PROGRESS CHANGED " + progress);
-//                seekBarThermometer.setThumb(writeOnDrawable(com.ocr.labinal.R.drawable.thumb, String.valueOf(progress)));
-//
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//        });
-//        seekBarThermometer.setFocusable(false);
-//        seekBarThermometer.setOnTouchListener(new View.OnTouchListener() {
-//                                                  @Override
-//                                                  public boolean onTouch(View view, MotionEvent motionEvent) {
-//                                                      return true;
-//                                                  }
-//                                              }
-//        );
-//    }
 
     /**
      * Writes text on the Thumb drawable
@@ -497,10 +411,6 @@ public class DetailFragment extends Fragment {
         //noinspection SimplifiableIfStatement
         if (id == com.ocr.labinal.R.id.action_telephones) {
             Intent intent = new Intent(getActivity(), TelephoneChangeActivity.class);
-            intent.putExtra(Constants.EXTRA_TELEPHONE_NUMBER, mTelephoneNumber);
-            startActivity(intent);
-        } else if (id == com.ocr.labinal.R.id.action_alerts) {
-            Intent intent = new Intent(getActivity(), SetPointsActivity.class);
             intent.putExtra(Constants.EXTRA_TELEPHONE_NUMBER, mTelephoneNumber);
             startActivity(intent);
         } else if (id == com.ocr.labinal.R.id.action_history) {

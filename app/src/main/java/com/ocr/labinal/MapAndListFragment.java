@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,10 +30,13 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.ocr.labinal.custom.recyclerView.CustomAdapter;
 import com.ocr.labinal.custom.recyclerView.EmptyRecyclerView;
 import com.ocr.labinal.events.EditNameEvent;
+import com.ocr.labinal.events.MarkerClickedEvent;
 import com.ocr.labinal.events.RefreshMicrologsEvent;
 import com.ocr.labinal.events.SelectContactFromPhoneEvent;
 import com.ocr.labinal.events.SensorClickedEvent;
@@ -58,18 +62,14 @@ public class MapAndListFragment extends Fragment {
 
     private final String TAG = MapAndListFragment.class.getSimpleName();
 
-//    public static List<MessagesLocation> mLocations;
 
     private static View view;
 
     public static Bus mapBus;
 
+    LatLngBounds mBounds;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-
-//    private HashMap<String, GoLockyMarker> eventMarkerMap;
-
-//    public static GoLockyMarker goLockyMarker;
 
     private LatLng mLatLong;
 
@@ -301,8 +301,8 @@ public class MapAndListFragment extends Fragment {
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
-//                goLockyMarker = eventMarkerMap.get(marker.getId());
-//                inflateMarkerClickedDialog(goLockyMarker);
+                String phoneNumber = marker.getSnippet();
+                MainActivity.bus.post(new MarkerClickedEvent(phoneNumber));
             }
         });
 
@@ -311,6 +311,8 @@ public class MapAndListFragment extends Fragment {
         mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
             public void onMapLoaded() {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(mBounds, 100));
+
 //                MainActivity.bus.post(new StartRegisteringUserEvent(StartRegisteringUserEvent.Type.STARTED, 1));
             }
         });
@@ -321,13 +323,52 @@ public class MapAndListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         setUpMapIfNeeded();
-//        if (mMap != null && mLocations != null && !mLocations.isEmpty()) {
-//            populateTheMap(mLocations);
-//            if (mLatLong != null && mLatLong.latitude != 0.0 && mLatLong.longitude != 0.0) {
-//                CameraUpdate cameraUpdateFactory = CameraUpdateFactory.newLatLngZoom(mLatLong, 17);
-//                mMap.animateCamera(cameraUpdateFactory);
-//            }
-//        }
+        if (mMap != null && mDataSet != null && !mDataSet.isEmpty()) {
+            populateTheMap();
+            if (mLatLong != null && mLatLong.latitude != 0.0 && mLatLong.longitude != 0.0) {
+                CameraUpdate cameraUpdateFactory = CameraUpdateFactory.newLatLngZoom(mLatLong, 17);
+                mMap.animateCamera(cameraUpdateFactory);
+            }
+        }
+    }
+
+    /**
+     * Create Makers on the map based on backend info
+     */
+    private void populateTheMap() {
+        Log.e("populate", "populate called");
+        if (mDataSet != null) {
+            LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+
+            String markerAddress = "";
+            Double markerReward = 0.0;
+            String markerName = "";
+            String markerPictureURL = "";
+            String snippetName = "";
+
+            mMap.clear();
+
+            int index = 0;
+            for (Microlog microlog : mDataSet) {
+                if (microlog.getLatitude() != 0 && microlog.getLongitude() != 0) {
+                    if (microlog.getName() != null) {
+                        markerName = microlog.getName();
+                    }
+                    snippetName = microlog.getSensorPhoneNumber();
+                    LatLng latLng = new LatLng(microlog.getLatitude(), microlog.getLongitude());
+
+                    boundsBuilder.include(latLng);
+
+                    Marker marker = mMap.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .snippet(snippetName)
+                            .title(markerName));
+                }
+
+            }
+            mBounds = boundsBuilder.build();
+        }
+
     }
 
     @Override
@@ -350,15 +391,15 @@ public class MapAndListFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (!editTextNewPhoneNumber.getText().toString().equalsIgnoreCase("")) {
-//                    Microlog microlog = new Microlog(
-//                            editTextNewPhoneNumber.getText().toString(),
-//                            null,
-//                            editTextName.getText().toString(),
-//                            "NORMAL",
-//                            3
-//                    );
-//                    microlog.save();
-//                    refreshRecyclerView();
+                    Microlog microlog = new Microlog(
+                            editTextNewPhoneNumber.getText().toString(),
+                            null,
+                            editTextName.getText().toString(),
+                            "Desconocido",
+                            3, 0, 0
+                    );
+                    microlog.save();
+                    refreshRecyclerView();
                 }
 
             }

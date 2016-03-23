@@ -21,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.util.Log;
+import android.view.View;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Delete;
@@ -32,10 +33,12 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.ocr.labinal.events.GoToDetailEvent;
+import com.ocr.labinal.events.MarkerClickedEvent;
 import com.ocr.labinal.events.RefreshMicrologsEvent;
 import com.ocr.labinal.events.SelectContactFromPhoneEvent;
 import com.ocr.labinal.events.SensorClickedEvent;
 import com.ocr.labinal.model.Microlog;
+import com.ocr.labinal.model.PlantEvent;
 import com.ocr.labinal.model.Temperature;
 import com.ocr.labinal.receivers.MessageReceiver;
 import com.ocr.labinal.utilities.AndroidBus;
@@ -162,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements
                 "01",
                 "Planta 1",
                 "Desconocido",
-                0, 28.6522408, -106.1279873
+                3, 28.6522408, -106.1279873
         );
         microlog.save();
         Microlog microlog2 = new Microlog(
@@ -170,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements
                 "02",
                 "Planta 2",
                 "Desconocido",
-                0, 28.7118695, -106.1136756
+                3, 28.7118695, -106.1136756
         );
         microlog2.save();
     }
@@ -327,7 +330,25 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
+     * comes from the {@link MapAndListFragment#setUpMap()}
+     *
+     * @param event
+     */
+    @Subscribe
+    public void MarkerClicked(MarkerClickedEvent event) {
+        if (event != null && !event.getPhoneNumber().isEmpty()) {
+            microlog = getMicrologByPhoneNumber(event.getPhoneNumber());
+            mTelephoneNumber = microlog.getSensorPhoneNumber();
+            mContactName = microlog.getName();
+            isSomethingSelected = true;
+
+            new SearchForSMSHistory().execute(mTelephoneNumber);
+        }
+    }
+
+    /**
      * comes from the custom adapter, what we want is the element id to pass into the next activity
+     * {@link com.ocr.labinal.custom.recyclerView.CustomAdapter.ViewHolder#ViewHolder(View)}
      *
      * @param event
      */
@@ -358,8 +379,8 @@ public class MainActivity extends AppCompatActivity implements
                     Log.d("MainActivity", microlog + microlog.name);
 
                 }
-                mTelephoneNumber = microlog.sensorPhoneNumber;
-                mContactName = microlog.name;
+                mTelephoneNumber = microlog.getSensorPhoneNumber();
+                mContactName = microlog.getName();
 
                 new SearchForSMSHistory().execute(mTelephoneNumber);
             }
@@ -385,7 +406,7 @@ public class MainActivity extends AppCompatActivity implements
 
             Uri uri = Uri.parse("content://sms");
             Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-            eraseTemperaturesFromLocalDB();
+            eraseEventsFromLocalDB();
 
             if (cursor.moveToFirst()) {
                 for (int i = 0; i < cursor.getCount(); i++) {
@@ -397,7 +418,7 @@ public class MainActivity extends AppCompatActivity implements
                         String body = cursor.getString(cursor.getColumnIndexOrThrow("body"));
                         String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
                         String type = cursor.getString(cursor.getColumnIndexOrThrow("type"));
-                        if (body.contains("MICROLOG") && type.equalsIgnoreCase("1")) {
+                        if (body.contains("LABINAL") && type.equalsIgnoreCase("1")) {
                             formatSMSMessage(telephoneToSearch, body, date);
                         }
                     }
@@ -409,34 +430,102 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         private void formatSMSMessage(String telephoneToSearch, String sms, String date) {
-            String[] spitedMessage = sms.split(" ");
+            String[] splitMessage = sms.split("/");
 
             try {
-                String micrologId = spitedMessage[1].substring(1, 3);
-                String stateTemp = spitedMessage[2].substring(0, 3);
-                String stateString = "";
-                if (stateTemp.equalsIgnoreCase("NOR")) {
-                    stateString = "Normal";
-                } else if (stateTemp.equalsIgnoreCase("ATN")) {
-                    stateString = "Atencion";
-                } else if (stateTemp.equalsIgnoreCase("ADV")) {
-                    stateString = "Advertencia";
-                } else if (stateTemp.equalsIgnoreCase("ALA")) {
-                    stateString = "Alarma";
-                }
-                String temperatureString = spitedMessage[5].substring(0, 2);
-                String relativeHumidityString = spitedMessage[8];
-//                Log.d(TAG, micrologId + " " + stateString + " " + temperatureString + " " + relativeHumidityString);
+                if (!sms.contains("PRUEBA")) { //if is not a test
+                    String micrologId = splitMessage[0].substring(splitMessage[0].lastIndexOf("PLANTA") + 7, 17);
+                    String state = splitMessage[0].substring(splitMessage[0].length() - 3); // NOR or ALA
+                    String stateFull = "";
+                    if (state.equalsIgnoreCase("NOR")) {
+                        stateFull = "Normal";
+                    } else {
+                        stateFull = "Alarma";
+                    }
+                    String origin = splitMessage[1].substring(splitMessage[1].length() - 3); // CFE, BAT, GEN
+                    String originFull = "";
+                    if (origin.equalsIgnoreCase("CFE")) {
+                        originFull = "CFE";
+                    } else if (origin.equalsIgnoreCase("BAT")) {
+                        originFull = "Bateria";
+                    } else {
+                        originFull = "Generador";
+                    }
+                    int minutesOnBattery = 0;
+                    int minutesOnTransfer = 0;
+                    boolean plantFailure = false;
+                    String upsState = "";
+                    if (splitMessage[2].contains("GEN")) { // if is GEN we have to search on index 3 instead of 2
+                        originFull = originFull + " Generador";
+                        upsState = splitMessage[3].substring(splitMessage[3].length() - 3); // NOR, ALA
 
-                if (!micrologIdSaved) { // we just want to do this the first time
-                    saveMicrologID(telephoneToSearch, micrologId, stateString);
+                        if (origin.equalsIgnoreCase("BAT")) {
+                            String minutesOnBatteryString = splitMessage[3].substring(splitMessage[3].lastIndexOf("MIN") + 6, 20);
+                            minutesOnBattery = Integer.parseInt(minutesOnBatteryString);
+                            if (splitMessage[3].contains("FALLA")) {
+                                plantFailure = true;
+                            }
+                        } else if (origin.equalsIgnoreCase("GEN")) {
+                            String minutesOnTransferString = splitMessage[3].substring(splitMessage[3].lastIndexOf("MIN") + 6, 27);
+                            minutesOnTransfer = Integer.parseInt(minutesOnTransferString);
+                        }
+                    } else {
+                        upsState = splitMessage[2].substring(splitMessage[2].length() - 3); // NOR, ALA
+
+                        if (origin.equalsIgnoreCase("BAT")) {
+                            String minutesOnBatteryString = splitMessage[2].substring(splitMessage[2].lastIndexOf("MIN") + 6, 20);
+                            minutesOnBattery = Integer.parseInt(minutesOnBatteryString);
+                            if (splitMessage[2].contains("FALLA")) {
+                                plantFailure = true;
+                            }
+                        } else if (origin.equalsIgnoreCase("GEN")) {
+                            String minutesOnTransferString = splitMessage[2].substring(splitMessage[2].lastIndexOf("MIN") + 6, 27);
+                            minutesOnTransfer = Integer.parseInt(minutesOnTransferString);
+                        }
+                    }
+
+                    String upsStateFull = "";
+                    if (upsState.equalsIgnoreCase("NOR")) {
+                        upsStateFull = "Normal";
+                    } else {
+                        upsStateFull = "Alarma";
+                    }
+                    if (!micrologIdSaved) { // we just want to do this once
+                        updateMicrologID(telephoneToSearch, micrologId, stateFull);
+                    }
+                    saveEvent(date, micrologId, stateFull, originFull, upsStateFull, minutesOnBattery, minutesOnTransfer, plantFailure, telephoneToSearch);
                 }
-                saveTemperature(micrologId, stateString, temperatureString, relativeHumidityString, telephoneToSearch, Long.parseLong(date));
+
             } catch (NumberFormatException e) {
                 e.printStackTrace();
 //                Log.e(TAG, "SMS must not be well formatted");
             }
+        }
 
+        /**
+         * Saves an event to the database
+         */
+        private void saveEvent(String dateInMillisString, String micrologId, String stateFull, String originFull, String upsState, int minutesOnBattery, int minutesOnTransfer, boolean plantFailure, String sensorPhoneNumber) {
+            ActiveAndroid.beginTransaction();
+            try {
+                PlantEvent plantEvent = new PlantEvent(
+                        sensorPhoneNumber,
+                        micrologId,
+                        stateFull,
+                        originFull,
+                        upsState,
+                        minutesOnBattery,
+                        minutesOnTransfer,
+                        plantFailure,
+                        Long.parseLong(dateInMillisString)
+                );
+                plantEvent.save();
+                ActiveAndroid.setTransactionSuccessful();
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            } finally {
+                ActiveAndroid.endTransaction();
+            }
         }
 
         private void saveTemperature(String micrologId, String stateString, String temperatureString, String relativeHumidityString, String temporalAddress, long date) {
@@ -463,12 +552,12 @@ public class MainActivity extends AppCompatActivity implements
          * Database erase
          * Erases the db so we don't have to check if the reading already exists and don't put duplicates
          */
-        private void eraseTemperaturesFromLocalDB() {
-            List<Temperature> tempList = new Select().from(Temperature.class).execute();
-            if (tempList != null && tempList.size() > 0) {
+        private void eraseEventsFromLocalDB() {
+            List<PlantEvent> eventList = new Select().from(PlantEvent.class).execute();
+            if (eventList != null && eventList.size() > 0) {
                 ActiveAndroid.beginTransaction();
                 try {
-                    new Delete().from(Temperature.class).execute();
+                    new Delete().from(PlantEvent.class).execute();
                     ActiveAndroid.setTransactionSuccessful();
                 } catch (Exception e) {
 //                    Logger.e(e, "error deleting existing db");
@@ -479,10 +568,17 @@ public class MainActivity extends AppCompatActivity implements
 
         }
 
-        private void saveMicrologID(String temporalAddress, String micrologId, String stateString) {
+        /**
+         * We only want to update the id and the state here
+         *
+         * @param phoneNumber self
+         * @param micrologId  the id that we just got
+         * @param stateString last reported state
+         */
+        private void updateMicrologID(String phoneNumber, String micrologId, String stateString) {
             Microlog microlog = new Select().
                     from(Microlog.class).
-                    where("sensorPhoneNumber = ?", temporalAddress).
+                    where("sensorPhoneNumber = ?", phoneNumber).
                     executeSingle();
 
             if (microlog != null) {
@@ -532,15 +628,15 @@ public class MainActivity extends AppCompatActivity implements
                             if (no.length() > 10) {
                                 no = no.substring(no.length() - 10);
                             }
-//                            Microlog microlog = new Microlog(
-//                                    no,
-//                                    null,
-//                                    name,
-//                                    null,
-//                                    3
-//                            );
-//                            microlog.save();
-//                            refreshMicrologsRecyclerView();
+                            Microlog microlog = new Microlog(
+                                    no,
+                                    null,
+                                    name,
+                                    null,
+                                    3, 0, 0
+                            );
+                            microlog.save();
+                            refreshMicrologsRecyclerView();
                         }
 
 

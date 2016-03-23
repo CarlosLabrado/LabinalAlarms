@@ -37,7 +37,7 @@ public class MessageReceiver extends BroadcastReceiver {
             abortBroadcast();
             String phoneNumber = formatMessage(messages);
             Intent newIntent = new Intent(context, MainActivity.class);
-            //startNewActivityOnTop(context, newIntent, phoneNumber);
+            startNewActivityOnTop(context, newIntent, phoneNumber);
         } else if (messages.getMessageBody().contains("01S?2")) {
 //            Log.i(TAG, "SetPoints received");
             String phoneNumber = formatMessageSetPoints(messages);

@@ -69,8 +69,8 @@
     <string name="text_history_humidity">Humedad</string>
     <string name="text_history_date">Fecha</string>
     <string name="button_set_points_obtain_all">Obtener SetPoints</string>
-    <string name="extra_subject">"Reporte de temperaturas "</string>
-    <string name="extra_text">Reporte de temperaturas Labinal</string>
+    <string name="extra_subject">"Reporte de Alarmas "</string>
+    <string name="extra_text">Reporte de alarmas Labinal</string>
     <string name="email_sent">Finalizado</string>
     <string name="send_email">Enviar Email…</string>
     <string name="toast_telephone_consult_send">"Mensaje de consulta enviado al "</string>
