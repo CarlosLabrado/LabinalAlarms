@@ -26,35 +26,43 @@
 
             <TextView
                 style="@style/TextViewTitle"
-                android:id="@+id/textViewTempStatus"
+                android:id="@+id/textViewEventStatus"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/text_history_status" />
+                android:text="@string/text_history_status"
+                android:layout_weight="1"/>
 
             <TextView
                 style="@style/TextViewTitle"
-                android:id="@+id/textViewTempF"
+                android:id="@+id/textViewEventWorkingOn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/text_history_temp" />
+                android:text="En"
+                android:layout_weight="1"/>
 
             <TextView
                 style="@style/TextViewTitle"
-                android:id="@+id/textViewTempHumidity"
+                android:id="@+id/textViewEventBattery"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/text_history_humidity" />
+                android:text="Bateria"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Min"
+                android:id="@+id/textView3"
+                style="@style/TextViewTitle"
+                android:layout_weight="1"/>
 
             <TextView
                 style="@style/TextViewTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/textViewTempTime"
-                android:layout_weight="1"
-                android:text="@string/text_history_date" />
+                android:id="@+id/textViewEventTime"
+                android:text="@string/text_history_date"
+                android:layout_weight="1"/>
         </LinearLayout>
 
         <com.ocr.labinal.custom.recyclerView.EmptyRecyclerView

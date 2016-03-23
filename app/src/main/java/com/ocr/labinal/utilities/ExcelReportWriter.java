@@ -1,6 +1,6 @@
 package com.ocr.labinal.utilities;
 
-import com.ocr.labinal.model.Temperature;
+import com.ocr.labinal.model.PlantEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,14 +30,14 @@ public class ExcelReportWriter {
     private WritableCellFormat timesBoldUnderline;
     private WritableCellFormat arial;
     private File inputFile;
-    private List<Temperature> mDataSet;
+    private List<PlantEvent> mDataSet;
 
 
     public void setOutputFile(File inputFile) {
         this.inputFile = inputFile;
     }
 
-    public void setData(List<Temperature> dataSet) {
+    public void setData(List<PlantEvent> dataSet) {
         mDataSet = dataSet;
     }
 
@@ -94,14 +94,14 @@ public class ExcelReportWriter {
         // Write a few number
         for (int i = 0; i < mDataSet.size(); i++) {
 
-            Temperature current = mDataSet.get(i);
+            PlantEvent current = mDataSet.get(i);
 
-            addLabel(sheet, 0, i + 1, current.status);
-            addDouble(sheet, 1, i + 1, current.tempInFahrenheit);
-            addDouble(sheet, 2, i + 1, current.humidity);
+            addLabel(sheet, 0, i + 1, current.getState());
+            addLabel(sheet, 1, i + 1, current.getPowerOrigin());
+            addLabel(sheet, 2, i + 1, current.getUpsState());
 
             Calendar calendar = new GregorianCalendar();
-            calendar.setTimeInMillis(mDataSet.get(i).timestamp);
+            calendar.setTimeInMillis(mDataSet.get(i).getTimeInMillis());
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", java.util.Locale.getDefault());
             simpleDateFormat.setCalendar(calendar);
 

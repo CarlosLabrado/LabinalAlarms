@@ -15,51 +15,60 @@
 -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="55dp"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:gravity="center_vertical">
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="55dp"
+             android:gravity="center_vertical">
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/textViewEventStatus"
             style="@style/TextViewNormal"
-            android:id="@+id/textViewTempStatus"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="@dimen/textSizeHistory"
             tools:text="Element"
-            android:layout_weight="1.5"/>
+            android:layout_weight="1"/>
 
         <TextView
+            android:id="@+id/textViewEventWorkingOn"
             style="@style/TextViewNormal"
-            android:id="@+id/textViewTempF"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="@dimen/textSizeHistory"
             tools:text="Element"
-            android:layout_weight="0.7"/>
+            android:layout_weight="1"/>
 
         <TextView
+            android:id="@+id/textViewEventBattery"
             style="@style/TextViewNormal"
-            android:id="@+id/textViewTempHumidity"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="@dimen/textSizeHistory"
             tools:text="Element"
-            android:layout_weight="0.7"/>
+            android:layout_weight="1"/>
 
         <TextView
+            android:id="@+id/textViewEventBatteryMinutes"
             style="@style/TextViewNormal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="@dimen/textSizeHistory"
+            tools:text="Element"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/textViewEventTime"
+            style="@style/TextViewNormal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/textSizeHistory"
             tools:text="New Text"
-            android:id="@+id/textViewTempTime"
-            android:layout_weight="1.5"/>
+            android:layout_weight="1"/>
     </LinearLayout>
 
 

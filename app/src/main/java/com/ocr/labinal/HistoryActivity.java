@@ -19,9 +19,9 @@ import android.widget.Toast;
 import com.activeandroid.query.Select;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.ocr.labinal.custom.recyclerView.EmptyRecyclerView;
-import com.ocr.labinal.custom.recyclerView.TemperatureAdapter;
+import com.ocr.labinal.custom.recyclerView.EventAdapter;
 import com.ocr.labinal.custom.showCaseView.ToolbarActionItemTarget;
-import com.ocr.labinal.model.Temperature;
+import com.ocr.labinal.model.PlantEvent;
 import com.ocr.labinal.utilities.AndroidBus;
 import com.ocr.labinal.utilities.ExcelReportWriter;
 import com.squareup.otto.Bus;
@@ -42,8 +42,8 @@ public class HistoryActivity extends AppCompatActivity {
 
     public static Bus bus;
 
-    protected List<Temperature> mDataSet;
-    protected TemperatureAdapter mAdapter;
+    protected List<PlantEvent> mDataSet;
+    protected EventAdapter mAdapter;
     protected RecyclerView.LayoutManager mLayoutManager;
 
     String mTelephoneNumber;
@@ -76,7 +76,7 @@ public class HistoryActivity extends AppCompatActivity {
             mLayoutManager = new LinearLayoutManager(this);
             recyclerViewHistory.setLayoutManager(mLayoutManager);
 
-            mAdapter = new TemperatureAdapter(mDataSet, this);
+            mAdapter = new EventAdapter(mDataSet, this);
 
             recyclerViewHistory.setAdapter(mAdapter);
         } else {
@@ -87,11 +87,11 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void initDataSet() {
-        mDataSet = getTemperatures();
+        mDataSet = getEvents();
     }
 
-    private List<Temperature> getTemperatures() {
-        return new Select().from(Temperature.class).where("sensorPhoneNumber = ?", mTelephoneNumber).orderBy("timestamp DESC").execute();
+    private List<PlantEvent> getEvents() {
+        return new Select().from(PlantEvent.class).where("sensorPhoneNumber = ?", mTelephoneNumber).orderBy("timeInMillis DESC").execute();
     }
 
     @Override
@@ -151,7 +151,7 @@ public class HistoryActivity extends AppCompatActivity {
 //        path = path + "/test.xls";
 //
 
-        final String fileName = "TempReport.xls";
+        final String fileName = "AlarmReport.xls";
 
         //Saving file in external storage
         File sdCard = Environment.getExternalStorageDirectory();

@@ -17,12 +17,6 @@
         android:orderInCategory="100"
         app:showAsAction="never"
         android:icon="@drawable/ic_call_white_24dp"/>
-    <item
-        android:id="@+id/action_alerts"
-        android:title="@string/action_alerts"
-        android:orderInCategory="200"
-        app:showAsAction="never"
-        android:icon="@drawable/ic_warning_white_24dp"/>
     </group>
     <group android:id="@+id/group_history">
     <item
