@@ -68,6 +68,12 @@
     <string name="text_history_temp">Temp F</string>
     <string name="text_history_humidity">Humedad</string>
     <string name="text_history_date">Fecha</string>
+    <string name="text_history_cfe">CFE</string>
+    <string name="text_history_gen">GEN</string>
+    <string name="text_history_prod">PROD</string>
+    <string name="text_history_seg">(seg)</string>
+
+
     <string name="button_set_points_obtain_all">Obtener SetPoints</string>
     <string name="extra_subject">"Reporte de Alarmas "</string>
     <string name="extra_text">Reporte de alarmas Labinal</string>
@@ -116,5 +122,7 @@
     <string name="dialog_update_positive">Actualizar</string>
     <string name="dialog_update_negative">Cancelar</string>
     <string name="dialog_edit_sensor_title">Editar Sensor</string>
+    <string name="state_off">OFF</string>
+    <string name="state_on">ON</string>
 
 </resources>

@@ -31,31 +31,31 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
      * Provide a reference to the type of views that you are using (custom ViewHolder)
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final TextView textViewEventStatus;
-        private final TextView textViewEventWorkingOn;
-        private final TextView textViewEventBattery;
+        private final TextView textViewEventCFE;
+        private final TextView textViewEventGEN;
+        private final TextView textViewEventPROD;
         private final TextView textViewEventBatteryMin;
         private final TextView textViewTempTime;
 
         public ViewHolder(View v) {
             super(v);
-            textViewEventStatus = (TextView) v.findViewById(R.id.textViewEventStatus);
-            textViewEventWorkingOn = (TextView) v.findViewById(R.id.textViewEventWorkingOn);
-            textViewEventBattery = (TextView) v.findViewById(R.id.textViewEventBattery);
+            textViewEventCFE = (TextView) v.findViewById(R.id.textViewEventStatus);
+            textViewEventGEN = (TextView) v.findViewById(R.id.textViewEventWorkingOn);
+            textViewEventPROD = (TextView) v.findViewById(R.id.textViewEventBattery);
             textViewEventBatteryMin = (TextView) v.findViewById(R.id.textViewEventBatteryMinutes);
             textViewTempTime = (TextView) v.findViewById(R.id.textViewEventTime);
         }
 
-        public TextView getTextViewEventStatus() {
-            return textViewEventStatus;
+        public TextView getTextViewEventCFE() {
+            return textViewEventCFE;
         }
 
-        public TextView getTextViewEventWorkingOn() {
-            return textViewEventWorkingOn;
+        public TextView getTextViewEventGEN() {
+            return textViewEventGEN;
         }
 
-        public TextView getTextViewEventBattery() {
-            return textViewEventBattery;
+        public TextView getTextViewEventPROD() {
+            return textViewEventPROD;
         }
 
         public TextView getTextViewEventBatteryMin() {
@@ -97,17 +97,61 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
 
         // Get element from your dataset at this position and replace the contents of the view
         // with that element
-        String statusString = mDataSet.get(position).getState();
-        if (statusString.equalsIgnoreCase("alarma")) {
-            viewHolder.getTextViewEventStatus().setTextColor(context.getResources().getColor(com.ocr.labinal.R.color.red_600));
+
+        PlantEvent plantEvent = mDataSet.get(position);
+        if (plantEvent.isPlantFailure()) {
+            viewHolder.getTextViewEventCFE().setTextColor(context.getResources().getColor(com.ocr.labinal.R.color.red_600));
+            viewHolder.getTextViewEventCFE().setText(R.string.state_off);
         } else {
-            viewHolder.getTextViewEventStatus().setTextColor(context.getResources().getColor(R.color.green_700));
+            viewHolder.getTextViewEventPROD().setTextColor(context.getResources().getColor(com.ocr.labinal.R.color.green_700));
+            viewHolder.getTextViewEventPROD().setText(R.string.state_on);
         }
 
-        viewHolder.getTextViewEventStatus().setText(mDataSet.get(position).getState());
-        viewHolder.getTextViewEventWorkingOn().setText(mDataSet.get(position).getPowerOrigin());
-        viewHolder.getTextViewEventBattery().setText(mDataSet.get(position).getUpsState());
-        viewHolder.getTextViewEventBatteryMin().setText(String.valueOf(mDataSet.get(position).getMinutesOnBattery()));
+        /**
+         * Power origin can be CFE, generador, bateria
+         */
+        if (plantEvent.getPowerOrigin().equalsIgnoreCase("CFE")) {
+            viewHolder.getTextViewEventCFE().setTextColor(context.getResources().getColor(com.ocr.labinal.R.color.green_700));
+            viewHolder.getTextViewEventCFE().setText(R.string.state_on);
+
+            viewHolder.getTextViewEventGEN().setTextColor(context.getResources().getColor(com.ocr.labinal.R.color.red_600));
+            viewHolder.getTextViewEventGEN().setText(R.string.state_off);
+        } else if (plantEvent.getPowerOrigin().equalsIgnoreCase("generador") || plantEvent.getPowerOrigin().equalsIgnoreCase("bateria")) {
+            viewHolder.getTextViewEventGEN().setTextColor(context.getResources().getColor(com.ocr.labinal.R.color.green_700));
+            viewHolder.getTextViewEventGEN().setText(R.string.state_on);
+
+            viewHolder.getTextViewEventCFE().setTextColor(context.getResources().getColor(com.ocr.labinal.R.color.red_600));
+            viewHolder.getTextViewEventCFE().setText(R.string.state_off);
+        } else if (plantEvent.getPowerOrigin().equalsIgnoreCase("CFE Generador")) { // both on
+            viewHolder.getTextViewEventCFE().setTextColor(context.getResources().getColor(com.ocr.labinal.R.color.green_700));
+            viewHolder.getTextViewEventCFE().setText(R.string.state_on);
+
+            viewHolder.getTextViewEventGEN().setTextColor(context.getResources().getColor(com.ocr.labinal.R.color.green_700));
+            viewHolder.getTextViewEventGEN().setText(R.string.state_on);
+        }
+
+        String secondsString;
+        if (plantEvent.getMinutesOnTransfer() > 0) {
+            secondsString = String.valueOf(plantEvent.getMinutesOnTransfer() * 60);
+        } else if (plantEvent.getMinutesOnBattery() > 0) {
+            secondsString = String.valueOf(plantEvent.getMinutesOnBattery() * 60);
+        } else {
+            secondsString = "0";
+        }
+        viewHolder.getTextViewEventBatteryMin().setText(secondsString);
+
+
+//        String statusString = mDataSet.get(position).getState();
+//        if (statusString.equalsIgnoreCase("alarma")) {
+//            viewHolder.getTextViewEventCFE().setTextColor(context.getResources().getColor(com.ocr.labinal.R.color.red_600));
+//        } else {
+//            viewHolder.getTextViewEventCFE().setTextColor(context.getResources().getColor(R.color.green_700));
+//        }
+//
+//        viewHolder.getTextViewEventCFE().setText(mDataSet.get(position).getState());
+//        viewHolder.getTextViewEventGEN().setText(mDataSet.get(position).getPowerOrigin());
+//        viewHolder.getTextViewEventPROD().setText(mDataSet.get(position).getUpsState());
+//        viewHolder.getTextViewEventBatteryMin().setText(String.valueOf(mDataSet.get(position).getMinutesOnBattery()));
 
         Calendar calendar = new GregorianCalendar();
         calendar.setTimeInMillis(mDataSet.get(position).getTimeInMillis());

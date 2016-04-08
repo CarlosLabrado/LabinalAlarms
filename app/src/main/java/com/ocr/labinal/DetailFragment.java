@@ -92,6 +92,14 @@ public class DetailFragment extends Fragment {
     TextView mTextViewBattery;
     @Bind(R.id.textViewMinutesOnBattery)
     TextView mTextViewMinutesOnBattery;
+    @Bind(R.id.textViewCFE)
+    TextView mTextViewCFE;
+    @Bind(R.id.textViewGEN)
+    TextView mTextViewGEN;
+    @Bind(R.id.textViewPROD)
+    TextView mTextViewPROD;
+    @Bind(R.id.textViewTime)
+    TextView mTextViewTime;
 
     @Bind(com.ocr.labinal.R.id.textViewNoInfo)
     TextView textViewNoInfo;
@@ -206,20 +214,65 @@ public class DetailFragment extends Fragment {
 
             PlantEvent plantEvent = mEvents.get(mEvents.size() - 1);
 
+            /**
+             * Plant failure is a production failure
+             */
             if (plantEvent.isPlantFailure()) {
                 mTextViewState.setTextColor(getResources().getColor(com.ocr.labinal.R.color.red_600));
                 mTextViewState.setText("Falla");
-            } else if (plantEvent.getState().equalsIgnoreCase("alarma")) {
-                mTextViewState.setTextColor(getResources().getColor(com.ocr.labinal.R.color.red_600));
-                mTextViewState.setText(plantEvent.getState());
+
+                mTextViewPROD.setTextColor(getResources().getColor(com.ocr.labinal.R.color.red_600));
+                mTextViewPROD.setText(R.string.state_off);
+//            } else if (plantEvent.getState().equalsIgnoreCase("alarma")) {
+//                mTextViewState.setTextColor(getResources().getColor(com.ocr.labinal.R.color.red_600));
+//                mTextViewState.setText(plantEvent.getState());
             } else {
                 mTextViewState.setTextColor(getResources().getColor(com.ocr.labinal.R.color.green_700));
                 mTextViewState.setText(plantEvent.getState());
+
+                mTextViewPROD.setTextColor(getResources().getColor(com.ocr.labinal.R.color.green_700));
+                mTextViewPROD.setText(R.string.state_on);
             }
 
-            mTextViewGenerator.setText(plantEvent.getPowerOrigin());
-            mTextViewBattery.setText(plantEvent.getUpsState());
-            mTextViewMinutesOnBattery.setText(String.valueOf(plantEvent.getMinutesOnBattery()));
+
+            /**
+             * Power origin can be CFE, generador, bateria
+             */
+            if (plantEvent.getPowerOrigin().equalsIgnoreCase("CFE")) {
+                mTextViewCFE.setTextColor(getResources().getColor(com.ocr.labinal.R.color.green_700));
+                mTextViewCFE.setText(R.string.state_on);
+
+                mTextViewGEN.setTextColor(getResources().getColor(com.ocr.labinal.R.color.red_600));
+                mTextViewGEN.setText(R.string.state_off);
+            } else if (plantEvent.getPowerOrigin().equalsIgnoreCase("generador") || plantEvent.getPowerOrigin().equalsIgnoreCase("bateria")) {
+                mTextViewGEN.setTextColor(getResources().getColor(com.ocr.labinal.R.color.green_700));
+                mTextViewGEN.setText(R.string.state_on);
+
+                mTextViewCFE.setTextColor(getResources().getColor(com.ocr.labinal.R.color.red_600));
+                mTextViewCFE.setText(R.string.state_off);
+            } else if (plantEvent.getPowerOrigin().equalsIgnoreCase("CFE Generador")) { // both on
+                mTextViewCFE.setTextColor(getResources().getColor(com.ocr.labinal.R.color.green_700));
+                mTextViewCFE.setText(R.string.state_on);
+
+                mTextViewGEN.setTextColor(getResources().getColor(com.ocr.labinal.R.color.green_700));
+                mTextViewGEN.setText(R.string.state_on);
+            }
+
+//            if (plantEvent.getState().equalsIgnoreCase(""))
+//
+//                mTextViewGenerator.setText(plantEvent.getPowerOrigin());
+//            mTextViewBattery.setText(plantEvent.getUpsState());
+
+            String secondsString;
+            if (plantEvent.getMinutesOnTransfer() > 0) {
+                secondsString = String.valueOf(plantEvent.getMinutesOnTransfer() * 60) + "seg on Transfer";
+            } else if (plantEvent.getMinutesOnBattery() > 0) {
+                secondsString = String.valueOf(plantEvent.getMinutesOnBattery() * 60) + "seg on Battery";
+            } else {
+                secondsString = "0";
+            }
+
+            mTextViewMinutesOnBattery.setText(secondsString);
 
             Calendar calendar = new GregorianCalendar();
             calendar.setTimeInMillis(plantEvent.getTimeInMillis());
@@ -349,7 +402,6 @@ public class DetailFragment extends Fragment {
         if (!isSomethingSelected) {
             menu.getItem(1).setEnabled(false);
             menu.getItem(2).setEnabled(false);
-            menu.getItem(3).setEnabled(false);
         }
 
     }

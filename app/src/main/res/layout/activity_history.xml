@@ -29,7 +29,7 @@
                 android:id="@+id/textViewEventStatus"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/text_history_status"
+                android:text="@string/text_history_cfe"
                 android:layout_weight="1"/>
 
             <TextView
@@ -37,7 +37,7 @@
                 android:id="@+id/textViewEventWorkingOn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="En"
+                android:text="@string/text_history_gen"
                 android:layout_weight="1"/>
 
             <TextView
@@ -45,13 +45,13 @@
                 android:id="@+id/textViewEventBattery"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Bateria"
+                android:text="@string/text_history_prod"
                 android:layout_weight="1"/>
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Min"
+                android:text="@string/text_history_seg"
                 android:id="@+id/textView3"
                 style="@style/TextViewTitle"
                 android:layout_weight="1"/>
