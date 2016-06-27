@@ -265,9 +265,9 @@ public class DetailFragment extends Fragment {
 
             String secondsString;
             if (plantEvent.getMinutesOnTransfer() > 0) {
-                secondsString = String.valueOf(plantEvent.getMinutesOnTransfer() * 60) + "seg on Transfer";
+                secondsString = String.valueOf(plantEvent.getMinutesOnTransfer() * 60) + " seg";
             } else if (plantEvent.getMinutesOnBattery() > 0) {
-                secondsString = String.valueOf(plantEvent.getMinutesOnBattery() * 60) + "seg on Battery";
+                secondsString = String.valueOf(plantEvent.getMinutesOnBattery() * 60) + " seg";
             } else {
                 secondsString = "0";
             }

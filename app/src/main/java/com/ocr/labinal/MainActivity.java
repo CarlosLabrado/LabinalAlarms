@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements
         isFirstRun = settings.getBoolean(Constants.SP_IS_FIRST_TIME, true);
 
         if (isFirstRun) {
-            createTheHardcodedMicrologs();
+//            createTheHardcodedMicrologs();
             isFirstRun = false;
             SharedPreferences.Editor editor = settings.edit();
             editor.putBoolean(Constants.SP_IS_FIRST_TIME, isFirstRun);

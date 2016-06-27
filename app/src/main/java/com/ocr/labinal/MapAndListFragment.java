@@ -308,14 +308,14 @@ public class MapAndListFragment extends Fragment {
 
         // Initiate loadings
 
-        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-            @Override
-            public void onMapLoaded() {
-                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(mBounds, 100));
-
-//                MainActivity.bus.post(new StartRegisteringUserEvent(StartRegisteringUserEvent.Type.STARTED, 1));
-            }
-        });
+        if (mBounds != null) {
+            mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                @Override
+                public void onMapLoaded() {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(mBounds, 100));
+                }
+            });
+        }
     }
 
 
@@ -349,8 +349,10 @@ public class MapAndListFragment extends Fragment {
             mMap.clear();
 
             int index = 0;
+            boolean weHaveBounds = false;
             for (Microlog microlog : mDataSet) {
                 if (microlog.getLatitude() != 0 && microlog.getLongitude() != 0) {
+                    weHaveBounds = true;
                     if (microlog.getName() != null) {
                         markerName = microlog.getName();
                     }
@@ -366,7 +368,9 @@ public class MapAndListFragment extends Fragment {
                 }
 
             }
-            mBounds = boundsBuilder.build();
+            if (weHaveBounds) {
+                mBounds = boundsBuilder.build();
+            }
         }
 
     }
