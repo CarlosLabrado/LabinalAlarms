@@ -82,8 +82,8 @@ public class ExcelReportWriter {
 
         // Write a few headers
         addCaption(sheet, 0, 0, "Estado");
-        addCaption(sheet, 1, 0, "Temperatura F");
-        addCaption(sheet, 2, 0, "Humedad");
+        addCaption(sheet, 1, 0, "Origen");
+        addCaption(sheet, 2, 0, "UPS");
         addCaption(sheet, 3, 0, "Fecha");
 
 
