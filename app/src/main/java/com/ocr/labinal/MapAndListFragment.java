@@ -47,9 +47,10 @@ import com.squareup.otto.Subscribe;
 
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 
 
 /**
@@ -79,18 +80,20 @@ public class MapAndListFragment extends Fragment {
     private ShowcaseView mShowcaseView;
     private int mShowCaseCounter = 0;
 
+    private Unbinder mUnbinder;
+
 
     public MapAndListFragment() {
         // Required empty public constructor
     }
 
-    @Bind(com.ocr.labinal.R.id.my_recycler_view)
+    @BindView(com.ocr.labinal.R.id.my_recycler_view)
     EmptyRecyclerView mRecyclerView;
 
-    @Bind(com.ocr.labinal.R.id.textViewSelectMicrolog)
+    @BindView(com.ocr.labinal.R.id.textViewSelectMicrolog)
     TextView mTextViewSelectMicrolog;
 
-    @Bind(com.ocr.labinal.R.id.fab_menu)
+    @BindView(com.ocr.labinal.R.id.fab_menu)
     FloatingActionsMenu mFloatingActionsMenu;
 
     @OnClick(com.ocr.labinal.R.id.fab_add)
@@ -129,7 +132,7 @@ public class MapAndListFragment extends Fragment {
         }
         try {
             view = inflater.inflate(com.ocr.labinal.R.layout.fragment_map, container, false);
-            ButterKnife.bind(this, view);
+            mUnbinder = ButterKnife.bind(this, view);
 
         } catch (InflateException e) {
             e.printStackTrace();
@@ -378,7 +381,7 @@ public class MapAndListFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.unbind(this);
+        mUnbinder.unbind();
     }
 
 

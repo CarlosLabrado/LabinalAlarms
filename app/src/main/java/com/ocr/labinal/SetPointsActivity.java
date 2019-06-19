@@ -27,7 +27,7 @@ import com.ocr.labinal.utilities.Tools;
 import java.util.Calendar;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -39,24 +39,24 @@ public class SetPointsActivity extends AppCompatActivity {
     private int mTemp2 = 33;
     private int mTemp3 = 28;
 
-    @Bind(com.ocr.labinal.R.id.toolbar)
+    @BindView(com.ocr.labinal.R.id.toolbar)
     Toolbar toolbar;
 
-    @Bind(com.ocr.labinal.R.id.editTextMicrologId)
+    @BindView(com.ocr.labinal.R.id.editTextMicrologId)
     EditText editTextMicrologId;
 
-    @Bind(com.ocr.labinal.R.id.seekBarSetPoint1)
+    @BindView(com.ocr.labinal.R.id.seekBarSetPoint1)
     SeekBar seekBarSetPoint1;
-    @Bind(com.ocr.labinal.R.id.seekBarSetPoint2)
+    @BindView(com.ocr.labinal.R.id.seekBarSetPoint2)
     SeekBar seekBarSetPoint2;
-    @Bind(com.ocr.labinal.R.id.seekBarSetPoint3)
+    @BindView(com.ocr.labinal.R.id.seekBarSetPoint3)
     SeekBar seekBarSetPoint3;
 
-    @Bind(com.ocr.labinal.R.id.editTextSetPoint1)
+    @BindView(com.ocr.labinal.R.id.editTextSetPoint1)
     EditText editTextSetPoint1;
-    @Bind(com.ocr.labinal.R.id.editTextSetPoint2)
+    @BindView(com.ocr.labinal.R.id.editTextSetPoint2)
     EditText editTextSetPoint2;
-    @Bind(com.ocr.labinal.R.id.editTextSetPoint3)
+    @BindView(com.ocr.labinal.R.id.editTextSetPoint3)
     EditText editTextSetPoint3;
 
     @OnClick(com.ocr.labinal.R.id.buttonSetPointAll)

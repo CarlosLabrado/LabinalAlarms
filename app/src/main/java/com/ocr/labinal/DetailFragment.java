@@ -40,7 +40,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -79,40 +79,40 @@ public class DetailFragment extends Fragment {
 
     private LatLng mLatLng;
 
-    @Bind(com.ocr.labinal.R.id.textViewContactName)
+    @BindView(com.ocr.labinal.R.id.textViewContactName)
     TextView textViewContactName;
 
-    @Bind(com.ocr.labinal.R.id.textViewTelephone)
+    @BindView(com.ocr.labinal.R.id.textViewTelephone)
     TextView textViewTelephone;
-    @Bind(R.id.textViewState)
+    @BindView(R.id.textViewState)
     TextView mTextViewState;
-    @Bind(R.id.textViewGenerator)
+    @BindView(R.id.textViewGenerator)
     TextView mTextViewGenerator;
-    @Bind(R.id.textViewBattery)
+    @BindView(R.id.textViewBattery)
     TextView mTextViewBattery;
-    @Bind(R.id.textViewMinutesOnBattery)
+    @BindView(R.id.textViewMinutesOnBattery)
     TextView mTextViewMinutesOnBattery;
-    @Bind(R.id.textViewCFE)
+    @BindView(R.id.textViewCFE)
     TextView mTextViewCFE;
-    @Bind(R.id.textViewGEN)
+    @BindView(R.id.textViewGEN)
     TextView mTextViewGEN;
-    @Bind(R.id.textViewPROD)
+    @BindView(R.id.textViewPROD)
     TextView mTextViewPROD;
-    @Bind(R.id.textViewTime)
+    @BindView(R.id.textViewTime)
     TextView mTextViewTime;
 
-    @Bind(com.ocr.labinal.R.id.textViewNoInfo)
+    @BindView(com.ocr.labinal.R.id.textViewNoInfo)
     TextView textViewNoInfo;
 
-    @Bind(com.ocr.labinal.R.id.textViewLastUpdateDate)
+    @BindView(com.ocr.labinal.R.id.textViewLastUpdateDate)
     TextView textViewLastUpdateDate;
 
-    @Bind(com.ocr.labinal.R.id.lastDataContainer)
+    @BindView(com.ocr.labinal.R.id.lastDataContainer)
     LinearLayout lastDataContainer;
 
-    @Bind(com.ocr.labinal.R.id.buttonUpdateState)
+    @BindView(com.ocr.labinal.R.id.buttonUpdateState)
     Button mButtonUpdateSelected;
-    @Bind(R.id.fab_edit)
+    @BindView(R.id.fab_edit)
     FloatingActionButton mFabEdit;
 
 

@@ -47,7 +47,7 @@ import com.squareup.otto.Subscribe;
 
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements
 
     boolean comesFromReceiver = false;
 
-    @Bind(com.ocr.labinal.R.id.toolbar)
+    @BindView(com.ocr.labinal.R.id.toolbar)
     Toolbar toolbar;
 
     public static Boolean getIsSomethingSelected() {

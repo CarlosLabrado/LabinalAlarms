@@ -32,7 +32,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -50,23 +50,23 @@ public class TelephoneChangeActivity extends AppCompatActivity {
     private ShowcaseView mShowcaseView;
     private int mShowCaseCounter = 0;
 
-    @Bind(com.ocr.labinal.R.id.toolbar)
+    @BindView(com.ocr.labinal.R.id.toolbar)
     Toolbar toolbar;
 
-    @Bind(com.ocr.labinal.R.id.editTextPhone1)
+    @BindView(com.ocr.labinal.R.id.editTextPhone1)
     EditText editTextPhone1;
-    @Bind(com.ocr.labinal.R.id.editTextPhone2)
+    @BindView(com.ocr.labinal.R.id.editTextPhone2)
     EditText editTextPhone2;
-    @Bind(com.ocr.labinal.R.id.editTextPhone3)
+    @BindView(com.ocr.labinal.R.id.editTextPhone3)
     EditText editTextPhone3;
 
-    @Bind(com.ocr.labinal.R.id.buttonModify1)
+    @BindView(com.ocr.labinal.R.id.buttonModify1)
     Button buttonModify1;
-    @Bind(com.ocr.labinal.R.id.buttonModify2)
+    @BindView(com.ocr.labinal.R.id.buttonModify2)
     Button buttonModify2;
-    @Bind(com.ocr.labinal.R.id.buttonModify3)
+    @BindView(com.ocr.labinal.R.id.buttonModify3)
     Button buttonModify3;
-    @Bind(com.ocr.labinal.R.id.buttonModifySpinner)
+    @BindView(com.ocr.labinal.R.id.buttonModifySpinner)
     Button buttonModifySpinner;
 
     @OnClick(com.ocr.labinal.R.id.buttonModify1)
@@ -126,17 +126,17 @@ public class TelephoneChangeActivity extends AppCompatActivity {
     }
 
 
-    @Bind(com.ocr.labinal.R.id.textViewUpdateDate1)
+    @BindView(com.ocr.labinal.R.id.textViewUpdateDate1)
     TextView textViewUpdateDate1;
-    @Bind(com.ocr.labinal.R.id.textViewUpdateDate2)
+    @BindView(com.ocr.labinal.R.id.textViewUpdateDate2)
     TextView textViewUpdateDate2;
-    @Bind(com.ocr.labinal.R.id.textViewUpdateDate3)
+    @BindView(com.ocr.labinal.R.id.textViewUpdateDate3)
     TextView textViewUpdateDate3;
 
-    @Bind(com.ocr.labinal.R.id.switchConsult)
+    @BindView(com.ocr.labinal.R.id.switchConsult)
     Switch switchConsult;
 
-    @Bind(com.ocr.labinal.R.id.spinner)
+    @BindView(com.ocr.labinal.R.id.spinner)
     Spinner phoneSpinner;
 
     private boolean consultMode = false;

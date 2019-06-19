@@ -9,7 +9,7 @@ import android.widget.LinearLayout;
 import com.ocr.labinal.utilities.AndroidBus;
 import com.squareup.otto.Bus;
 
-import butterknife.Bind;
+import butterknife.BindView;
 
 
 public class SplashActivity extends AppCompatActivity {
@@ -21,7 +21,7 @@ public class SplashActivity extends AppCompatActivity {
     private Handler mHandler;
 
 
-    @Bind(com.ocr.labinal.R.id.newContactContainer)
+    @BindView(com.ocr.labinal.R.id.newContactContainer)
     LinearLayout newContactContainer;
 
 

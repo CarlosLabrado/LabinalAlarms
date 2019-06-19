@@ -31,7 +31,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class HistoryActivity extends AppCompatActivity {
@@ -51,10 +51,10 @@ public class HistoryActivity extends AppCompatActivity {
     private ShowcaseView mShowcaseView;
     private int mShowCaseCounter = 0;
 
-    @Bind(com.ocr.labinal.R.id.recycler_view_history)
+    @BindView(com.ocr.labinal.R.id.recycler_view_history)
     EmptyRecyclerView recyclerViewHistory;
 
-    @Bind(com.ocr.labinal.R.id.toolbar)
+    @BindView(com.ocr.labinal.R.id.toolbar)
     Toolbar toolbar;
 
     @Override
